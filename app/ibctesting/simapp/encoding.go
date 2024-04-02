@@ -3,7 +3,7 @@ package simapp
 import (
 	"github.com/cosmos/cosmos-sdk/std"
 
-	simappparams "github.com/notional-labs/composable/v6/app/ibctesting/simapp/params"
+	simappparams "github.com/ComposableFi/composable-cosmos/v6/app/ibctesting/simapp/params"
 )
 
 // MakeTestEncodingConfig creates an EncodingConfig for testing. This function

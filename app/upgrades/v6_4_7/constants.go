@@ -3,7 +3,7 @@ package v6_4_7
 import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/notional-labs/composable/v6/app/upgrades"
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
 )
 
 const (

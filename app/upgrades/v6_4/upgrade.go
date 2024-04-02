@@ -5,10 +5,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	"github.com/ComposableFi/composable-cosmos/v6/app/keepers"
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
+	customstmiddleware "github.com/ComposableFi/composable-cosmos/v6/x/stakingmiddleware/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/notional-labs/composable/v6/app/keepers"
-	"github.com/notional-labs/composable/v6/app/upgrades"
-	customstmiddleware "github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
 )
 
 func CreateUpgradeHandler(

@@ -9,7 +9,7 @@ import (
 	"cosmossdk.io/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/types"
 )
 
 var _ types.MsgServer = msgServer{}

@@ -4,15 +4,15 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
+	tfmwKeeper "github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/keeper"
+	txBoundaryAnte "github.com/ComposableFi/composable-cosmos/v6/x/tx-boundary/ante"
+	txBoundaryKeeper "github.com/ComposableFi/composable-cosmos/v6/x/tx-boundary/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	tfmwKeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
-	txBoundaryAnte "github.com/notional-labs/composable/v6/x/tx-boundary/ante"
-	txBoundaryKeeper "github.com/notional-labs/composable/v6/x/tx-boundary/keeper"
 )
 
 // Link to default ante handler used by cosmos sdk:

@@ -3,11 +3,11 @@ package keeper
 import (
 	"context"
 
+	"github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkquery "github.com/cosmos/cosmos-sdk/types/query"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"
 )
 
 func (k Keeper) ParaTokenInfo(c context.Context, req *types.QueryParaTokenInfoRequest) (*types.QueryParaTokenInfoResponse, error) {

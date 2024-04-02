@@ -2,13 +2,13 @@ package v5
 
 import (
 	"cosmossdk.io/math"
+	"github.com/ComposableFi/composable-cosmos/v6/app/keepers"
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/notional-labs/composable/v6/app/keepers"
-	"github.com/notional-labs/composable/v6/app/upgrades"
-	"github.com/notional-labs/composable/v6/x/ratelimit/types"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/x/ratelimit/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/types"
 )
 
 func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {

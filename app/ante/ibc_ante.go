@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
-	tfmwKeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
+	tfmwKeeper "github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/keeper"
 )
 
 type IBCPermissionDecorator struct {

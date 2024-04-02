@@ -7,14 +7,14 @@ import (
 	abcicometbft "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
+	mintkeeper "github.com/ComposableFi/composable-cosmos/v6/x/mint/keeper"
+	minttypes "github.com/ComposableFi/composable-cosmos/v6/x/mint/types"
+	stakingmiddleware "github.com/ComposableFi/composable-cosmos/v6/x/stakingmiddleware/keeper"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	mintkeeper "github.com/notional-labs/composable/v6/x/mint/keeper"
-	minttypes "github.com/notional-labs/composable/v6/x/mint/types"
-	stakingmiddleware "github.com/notional-labs/composable/v6/x/stakingmiddleware/keeper"
 )
 
 type Keeper struct {

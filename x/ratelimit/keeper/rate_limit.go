@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/notional-labs/composable/v6/x/ratelimit/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/types"
 )
 
 // Get the rate limit byte key built from the denom and channelID

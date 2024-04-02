@@ -10,7 +10,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
+	custombankkeeper "github.com/ComposableFi/composable-cosmos/v6/custom/bank/keeper"
 )
 
 // AppModule wraps around the bank module and the bank keeper to return the right total supply ignoring bonded tokens

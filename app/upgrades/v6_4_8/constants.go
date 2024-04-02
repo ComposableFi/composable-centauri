@@ -1,9 +1,9 @@
 package v6_4_8
 
 import (
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
+	ibctransfermiddleware "github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/notional-labs/composable/v6/app/upgrades"
-	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
 
 const (

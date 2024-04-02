@@ -3,8 +3,8 @@ package v6_4
 import (
 	store "github.com/cosmos/cosmos-sdk/store/types"
 
-	"github.com/notional-labs/composable/v6/app/upgrades"
-	customstmiddleware "github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
+	customstmiddleware "github.com/ComposableFi/composable-cosmos/v6/x/stakingmiddleware/types"
 )
 
 const (

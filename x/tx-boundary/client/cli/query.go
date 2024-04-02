@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ComposableFi/composable-cosmos/v6/x/tx-boundary/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/notional-labs/composable/v6/x/tx-boundary/types"
 )
 
 // GetQueryCmd returns the cli query commands for the tx-boundary module.

@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/address"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/notional-labs/composable/v6/x/mint/simulation"
-	"github.com/notional-labs/composable/v6/x/mint/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/mint/simulation"
+	"github.com/ComposableFi/composable-cosmos/v6/x/mint/types"
 )
 
 func TestProposalMsgs(t *testing.T) {

@@ -3,7 +3,7 @@ package ratelimit
 import (
 	"fmt"
 
-	"github.com/notional-labs/composable/v6/x/ratelimit/keeper"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

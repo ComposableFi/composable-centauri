@@ -14,7 +14,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
-	"github.com/notional-labs/composable/v6/x/ratelimit/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/types"
 )
 
 type RateLimitedPacketInfo struct {

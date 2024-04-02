@@ -1,6 +1,6 @@
 package v4_5_1
 
-import "github.com/notional-labs/composable/v6/app/upgrades"
+import "github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
 
 const (
 	// UpgradeName defines the on-chain upgrade name for the Composable v5 upgrade.

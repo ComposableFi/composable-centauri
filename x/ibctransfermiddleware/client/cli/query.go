@@ -3,9 +3,9 @@ package cli
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
 
 // GetQueryCmd returns the cli query commands for the staking middleware module.

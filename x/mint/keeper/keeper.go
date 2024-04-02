@@ -10,7 +10,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/x/mint/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/mint/types"
 )
 
 // Keeper of the mint store

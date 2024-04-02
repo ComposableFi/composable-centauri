@@ -4,9 +4,9 @@ import (
 	"context"
 
 	errorsmod "cosmossdk.io/errors"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
 
 var _ types.MsgServer = msgServer{}

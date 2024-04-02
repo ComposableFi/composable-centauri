@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 
-	"github.com/notional-labs/composable/v6/x/ibc-hooks/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibc-hooks/types"
 )
 
 type (

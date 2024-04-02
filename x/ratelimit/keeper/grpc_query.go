@@ -8,7 +8,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 
-	"github.com/notional-labs/composable/v6/x/ratelimit/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/types"
 )
 
 var _ types.QueryServer = Keeper{}

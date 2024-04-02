@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/types"
 )
 
 // TODO: add init genesis logic

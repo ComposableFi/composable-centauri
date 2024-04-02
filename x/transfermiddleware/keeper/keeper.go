@@ -15,7 +15,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 
-	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/types"
 )
 
 type Keeper struct {

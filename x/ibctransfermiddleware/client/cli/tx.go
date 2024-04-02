@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 	"github.com/spf13/cobra"
 )
 

@@ -12,7 +12,7 @@ import (
 	wasmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 	"github.com/stretchr/testify/suite"
 
-	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
+	customibctesting "github.com/ComposableFi/composable-cosmos/v6/app/ibctesting"
 )
 
 // NOTE: This is the address of the gov authority on the chain that is being tested.

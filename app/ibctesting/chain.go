@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	ratelimitmodulekeeper "github.com/notional-labs/composable/v6/x/ratelimit/keeper"
+	ratelimitmodulekeeper "github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/keeper"
 
 	"cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -54,9 +54,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	composable "github.com/notional-labs/composable/v6/app"
-	"github.com/notional-labs/composable/v6/app/ibctesting/simapp"
-	routerKeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
+	composable "github.com/ComposableFi/composable-cosmos/v6/app"
+	"github.com/ComposableFi/composable-cosmos/v6/app/ibctesting/simapp"
+	routerKeeper "github.com/ComposableFi/composable-cosmos/v6/x/transfermiddleware/keeper"
 )
 
 // TestChain is a testing struct that wraps a simapp with the last TM Header, the current ABCI

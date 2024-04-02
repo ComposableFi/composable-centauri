@@ -4,9 +4,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/app/keepers"
-	rateLimitKeeper "github.com/notional-labs/composable/v6/x/ratelimit/keeper"
-	"github.com/notional-labs/composable/v6/x/ratelimit/types"
+	"github.com/ComposableFi/composable-cosmos/v6/app/keepers"
+	rateLimitKeeper "github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/keeper"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ratelimit/types"
 )
 
 const uosmo = "ibc/47BD209179859CDE4A2806763D7189B6E6FE13A17880FE2B42DE1E6C1E329E23"

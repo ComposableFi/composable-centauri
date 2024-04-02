@@ -16,9 +16,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/client/cli"
-	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
-	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/client/cli"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/keeper"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibctransfermiddleware/types"
 )
 
 var (

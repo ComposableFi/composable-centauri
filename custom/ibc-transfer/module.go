@@ -6,11 +6,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
+	custombankkeeper "github.com/ComposableFi/composable-cosmos/v6/custom/bank/keeper"
+	customibctransferkeeper "github.com/ComposableFi/composable-cosmos/v6/custom/ibc-transfer/keeper"
 	ibctransfermodule "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
-	customibctransferkeeper "github.com/notional-labs/composable/v6/custom/ibc-transfer/keeper"
 )
 
 // AppModule wraps around the bank module and the bank keeper to return the right total supply

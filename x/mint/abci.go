@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/x/mint/keeper"
-	"github.com/notional-labs/composable/v6/x/mint/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/mint/keeper"
+	"github.com/ComposableFi/composable-cosmos/v6/x/mint/types"
 )
 
 // BeginBlocker mints new tokens for the previous block.

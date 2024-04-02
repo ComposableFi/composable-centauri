@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/ComposableFi/composable-cosmos/v6/app"
+	"github.com/ComposableFi/composable-cosmos/v6/app/helpers"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -17,8 +19,6 @@ import (
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
-	"github.com/notional-labs/composable/v6/app"
-	"github.com/notional-labs/composable/v6/app/helpers"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )

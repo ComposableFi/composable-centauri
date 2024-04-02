@@ -1,8 +1,8 @@
 package keeper
 
 import (
+	"github.com/ComposableFi/composable-cosmos/v6/x/stakingmiddleware/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
 )
 
 // InitGenesis new stake middleware genesis

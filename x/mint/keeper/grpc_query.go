@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/x/mint/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/mint/types"
 )
 
 var _ types.QueryServer = Keeper{}

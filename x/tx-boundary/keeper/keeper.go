@@ -9,7 +9,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/notional-labs/composable/v6/x/tx-boundary/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/tx-boundary/types"
 )
 
 // Keeper struct

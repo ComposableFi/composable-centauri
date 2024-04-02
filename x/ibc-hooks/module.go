@@ -10,8 +10,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/notional-labs/composable/v6/x/ibc-hooks/client/cli"
-	"github.com/notional-labs/composable/v6/x/ibc-hooks/types"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibc-hooks/client/cli"
+	"github.com/ComposableFi/composable-cosmos/v6/x/ibc-hooks/types"
 
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 

@@ -1,8 +1,8 @@
 package v6_4_9
 
 import (
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
 	store "github.com/cosmos/cosmos-sdk/store/types"
-	"github.com/notional-labs/composable/v6/app/upgrades"
 )
 
 const (

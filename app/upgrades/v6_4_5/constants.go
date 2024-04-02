@@ -1,7 +1,7 @@
 package v6_4_5
 
 import (
-	"github.com/notional-labs/composable/v6/app/upgrades"
+	"github.com/ComposableFi/composable-cosmos/v6/app/upgrades"
 )
 
 const (
