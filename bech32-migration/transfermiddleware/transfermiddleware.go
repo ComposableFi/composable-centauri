@@ -26,7 +26,7 @@ func MigrateAddressBech32(ctx sdk.Context, storeKey storetypes.StoreKey, cdc cod
 		store.Set(types.GetKeyByRlyAddress(newPrefixAddr), relayAddressPrefix)
 	}
 	if allowRelayAddressCount == 0 {
-		//TODO: only using in localtest
+		// TODO: only using in localtest
 		store.Set(types.GetKeyByRlyAddress("pica12smx2wdlyttvyzvzg54y2vnqwq2qjate0ww798"), relayAddressPrefix)
 	}
 
