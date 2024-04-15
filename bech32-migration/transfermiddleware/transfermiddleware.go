@@ -15,13 +15,15 @@ func MigrateAddressBech32(ctx sdk.Context, storeKey storetypes.StoreKey, cdc cod
 	allowRelayAddressCount := uint64(0)
 
 	store := ctx.KVStore(storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyRlyAddress)
+
+	relayAddressPrefix := []byte{1}
+	iterator := sdk.KVStorePrefixIterator(store, relayAddressPrefix)
 
 	for ; iterator.Valid(); iterator.Next() {
 		allowRelayAddressCount++
 		trimedAddr := strings.Replace(string(iterator.Key()), "\x04", "", 1)
 		newPrefixAddr := utils.ConvertAccAddr(trimedAddr)
-		store.Set(types.GetKeyByRlyAddress(newPrefixAddr), []byte{1})
+		store.Set(types.GetKeyByRlyAddress(newPrefixAddr), relayAddressPrefix)
 	}
 
 	ctx.Logger().Info(
