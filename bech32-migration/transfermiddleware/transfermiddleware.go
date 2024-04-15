@@ -17,7 +17,7 @@ func MigrateAddressBech32(ctx sdk.Context, storeKey storetypes.StoreKey, cdc cod
 	store := ctx.KVStore(storeKey)
 
 	relayAddressPrefix := []byte{1}
-	iterator := sdk.KVStorePrefixIterator(store, relayAddressPrefix)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyRlyAddress)
 
 	for ; iterator.Valid(); iterator.Next() {
 		allowRelayAddressCount++
