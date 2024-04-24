@@ -11,13 +11,16 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+
 	"github.com/notional-labs/composable/v6/app/keepers"
 	"github.com/notional-labs/composable/v6/app/upgrades"
 	bech32authmigration "github.com/notional-labs/composable/v6/bech32-migration/auth"
 	bech32govmigration "github.com/notional-labs/composable/v6/bech32-migration/gov"
 	bech32icamigration "github.com/notional-labs/composable/v6/bech32-migration/ica"
 	bech32mintmigration "github.com/notional-labs/composable/v6/bech32-migration/mint"
+	bech32PfmMigration "github.com/notional-labs/composable/v6/bech32-migration/pfmmiddleware"
 	bech32slashingmigration "github.com/notional-labs/composable/v6/bech32-migration/slashing"
 	bech32stakingmigration "github.com/notional-labs/composable/v6/bech32-migration/staking"
 	bech32transfermiddlewaremigration "github.com/notional-labs/composable/v6/bech32-migration/transfermiddleware"
@@ -45,6 +48,7 @@ func CreateUpgradeHandler(
 		bech32mintmigration.MigrateAddressBech32(ctx, keys[minttypes.StoreKey], codec)
 		bech32transfermiddlewaremigration.MigrateAddressBech32(ctx, keys[transfermiddlewaretypes.StoreKey], codec)
 		bech32WasmMigration.MigrateAddressBech32(ctx, keys[wasm.StoreKey], codec)
+		bech32PfmMigration.MigrateAddressBech32(ctx, keys[routertypes.StoreKey], codec, keepers)
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }

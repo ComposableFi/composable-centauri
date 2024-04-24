@@ -18,6 +18,7 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	apptesting "github.com/notional-labs/composable/v6/app"
 	"github.com/notional-labs/composable/v6/bech32-migration/utils"
 	"github.com/stretchr/testify/suite"
@@ -58,6 +59,7 @@ func (s *UpgradeTestSuite) TestForMigratingNewPrefix() {
 	prepareForTestingICAHostModule(s)
 	prepareForTestingMintModule(s)
 	prepareForTestingTransferMiddlewareModule(s)
+	prepareForTestingPfmMiddlewareModule(s)
 
 	/* == UPGRADE == */
 	upgradeHeight := int64(5)
@@ -212,6 +214,36 @@ func prepareForTestingAllianceModule(s *UpgradeTestSuite) {
 func prepareForTestingTransferMiddlewareModule(s *UpgradeTestSuite) {
 	acc1 := s.TestAccs[0]
 	s.App.TransferMiddlewareKeeper.SetAllowRlyAddress(s.Ctx, acc1.String())
+}
+
+func prepareForTestingPfmMiddlewareModule(s *UpgradeTestSuite) {
+	store := s.Ctx.KVStore(s.App.GetKey(routertypes.StoreKey))
+	inFlightPacket := routertypes.InFlightPacket{
+		PacketData:            []byte("{\"amount\":\"10000\",\"denom\":\"transfer/channel-6660/ppica\",\"memo\":\"{\\\"forward\\\":{\\\"receiver\\\":\\\"osmo1wkjvpgkuchq0r8425g4z4sf6n85zj5wth3u77y\\\",\\\"port\\\":\\\"transfer\\\",\\\"channel\\\":\\\"channel-9\\\",\\\"timeout\\\":600000000000,\\\"retries\\\":0}}\",\"receiver\":\"centauri1wkjvpgkuchq0r8425g4z4sf6n85zj5wtmqzjv9\",\"sender\":\"osmo1wkjvpgkuchq0r8425g4z4sf6n85zj5wth3u77y\"}"),
+		OriginalSenderAddress: "osmo1wkjvpgkuchq0r8425g4z4sf6n85zj5wth3u77y",
+		RefundChannelId:       "channel-9",
+		RefundPortId:          "transfer",
+		RefundSequence:        18,
+		PacketSrcPortId:       "transfer",
+		PacketSrcChannelId:    "channel-66660",
+
+		PacketTimeoutTimestamp: 1712153063084849609,
+		PacketTimeoutHeight:    "5-123",
+
+		RetriesRemaining: int32(0),
+		Timeout:          uint64(600000000000),
+		Nonrefundable:    false,
+	}
+
+	encCdc := apptesting.MakeEncodingConfig()
+
+	key := routertypes.RefundPacketKey("channel-9", "transfer", 0)
+	bz := encCdc.Amino.MustMarshal(&inFlightPacket)
+	store.Set(key, bz)
+
+	key = routertypes.RefundPacketKey("channel-9", "transfer", 2)
+	bz = encCdc.Amino.MustMarshal(&inFlightPacket)
+	store.Set(key, bz)
 }
 
 func checkUpgradeGovModule(s *UpgradeTestSuite, acc1 sdk.AccAddress, proposal govtypes.Proposal) {
