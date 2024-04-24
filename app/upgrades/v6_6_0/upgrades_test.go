@@ -74,6 +74,7 @@ func (s *UpgradeTestSuite) TestForMigratingNewPrefix() {
 	checkUpgradeICAHostModule(s)
 	checkUpgradeMintModule(s)
 	checkUpgradeTransferMiddlewareModule(s)
+	checkUpgradePfmMiddlewareModule(s)
 }
 
 func prepareForTestingGovModule(s *UpgradeTestSuite) (sdk.AccAddress, govtypes.Proposal) {
@@ -220,7 +221,7 @@ func prepareForTestingPfmMiddlewareModule(s *UpgradeTestSuite) {
 	store := s.Ctx.KVStore(s.App.GetKey(routertypes.StoreKey))
 	inFlightPacket := routertypes.InFlightPacket{
 		PacketData:            []byte("{\"amount\":\"10000\",\"denom\":\"transfer/channel-6660/ppica\",\"memo\":\"{\\\"forward\\\":{\\\"receiver\\\":\\\"osmo1wkjvpgkuchq0r8425g4z4sf6n85zj5wth3u77y\\\",\\\"port\\\":\\\"transfer\\\",\\\"channel\\\":\\\"channel-9\\\",\\\"timeout\\\":600000000000,\\\"retries\\\":0}}\",\"receiver\":\"centauri1wkjvpgkuchq0r8425g4z4sf6n85zj5wtmqzjv9\",\"sender\":\"osmo1wkjvpgkuchq0r8425g4z4sf6n85zj5wth3u77y\"}"),
-		OriginalSenderAddress: "osmo1wkjvpgkuchq0r8425g4z4sf6n85zj5wth3u77y",
+		OriginalSenderAddress: "centauri1wkjvpgkuchq0r8425g4z4sf6n85zj5wtmqzjv9",
 		RefundChannelId:       "channel-9",
 		RefundPortId:          "transfer",
 		RefundSequence:        18,
@@ -242,6 +243,7 @@ func prepareForTestingPfmMiddlewareModule(s *UpgradeTestSuite) {
 	store.Set(key, bz)
 
 	key = routertypes.RefundPacketKey("channel-9", "transfer", 2)
+	inFlightPacket.OriginalSenderAddress = "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs"
 	bz = encCdc.Amino.MustMarshal(&inFlightPacket)
 	store.Set(key, bz)
 }
@@ -439,6 +441,14 @@ func checkUpgradeTransferMiddlewareModule(s *UpgradeTestSuite) {
 	acc1 := s.TestAccs[0]
 	found := s.App.TransferMiddlewareKeeper.HasAllowRlyAddress(s.Ctx, acc1.String())
 	s.Suite.Equal(found, true)
+}
+
+func checkUpgradePfmMiddlewareModule(s *UpgradeTestSuite) {
+	data := s.App.RouterKeeper.GetAndClearInFlightPacket(s.Ctx, "channel-9", "transfer", 0)
+	s.Suite.Equal("pica1wkjvpgkuchq0r8425g4z4sf6n85zj5wtykvtv3", data.OriginalSenderAddress)
+
+	data = s.App.RouterKeeper.GetAndClearInFlightPacket(s.Ctx, "channel-9", "transfer", 2)
+	s.Suite.Equal("pica1hj5fveer5cjtn4wd6wstzugjfdxzl0xpas3hgy", data.OriginalSenderAddress)
 }
 
 func CreateVestingAccount(s *UpgradeTestSuite,
