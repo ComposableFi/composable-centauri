@@ -1,4 +1,4 @@
-package slashing
+package ica
 
 import (
 	"strings"

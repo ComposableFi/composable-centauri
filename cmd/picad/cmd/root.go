@@ -55,8 +55,8 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		WithViper("ICA")
 
 	rootCmd := &cobra.Command{
-		Use:   app.Name + "d",
-		Short: "Composable App",
+		Use:   "picad",
+		Short: "Picasso",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())
