@@ -13,11 +13,12 @@ import (
 	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
 	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
-	ibctransfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
+	ibctransfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
 )
 
 var _ porttypes.Middleware = &IBCMiddleware{}
@@ -26,7 +27,6 @@ var _ porttypes.Middleware = &IBCMiddleware{}
 // forward keeper and the underlying application.
 type IBCMiddleware struct {
 	router.IBCMiddleware
-	ibcfeekeeper ibctransfermiddlewarekeeper.Keeper
 
 	app1    porttypes.IBCModule
 	keeper1 *keeper.Keeper
@@ -34,6 +34,7 @@ type IBCMiddleware struct {
 	retriesOnTimeout1 uint8
 	forwardTimeout1   time.Duration
 	refundTimeout1    time.Duration
+	ibcfeekeeper      *ibctransfermiddlewarekeeper.Keeper
 	bank              *custombankkeeper.Keeper
 }
 
@@ -43,7 +44,7 @@ func NewIBCMiddleware(
 	retriesOnTimeout uint8,
 	forwardTimeout time.Duration,
 	refundTimeout time.Duration,
-	ibcfeekeeper ibctransfermiddlewarekeeper.Keeper,
+	ibcfeekeeper *ibctransfermiddlewarekeeper.Keeper,
 	bankkeeper *custombankkeeper.Keeper,
 ) IBCMiddleware {
 	return IBCMiddleware{
@@ -164,6 +165,66 @@ func (im IBCMiddleware) OnRecvPacket(
 		retries = im.retriesOnTimeout1
 	}
 
+	// im.ibcfeekeeper.Transfer()
+
+	feeAmount := sdk.NewDecFromInt(token.Amount).Mul(im.keeper1.GetFeePercentage(ctx)).RoundInt()
+	packetAmount := token.Amount.Sub(feeAmount)
+	packetCoin := sdk.NewCoin(token.Denom, packetAmount)
+
+	memo := ""
+
+	// set memo for next transfer with next from this transfer.
+	if metadata.Next != nil {
+		memoBz, err := json.Marshal(metadata.Next)
+		if err != nil {
+			im.keeper1.Logger(ctx).Error("packetForwardMiddleware error marshaling next as JSON",
+				"error", err,
+			)
+			// return errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		memo = string(memoBz)
+	}
+
+	tr := transfertypes.NewMsgTransfer(
+		metadata.Port,
+		metadata.Channel,
+		packetCoin,
+		overrideReceiver,
+		metadata.Receiver,
+		clienttypes.Height{
+			RevisionNumber: 0,
+			RevisionHeight: 0,
+		},
+		uint64(ctx.BlockTime().UnixNano())+uint64(timeout.Nanoseconds()),
+		memo,
+	)
+
+	result, err := im.ibcfeekeeper.ChargeFee(goCtx, tr)
+	if err != nil {
+		logger.Error("packetForwardMiddleware OnRecvPacket error charging fee", "error", err)
+		return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
+	}
+	if result != nil {
+		if token.Amount.LTE(result.Fee.Amount) {
+			token = token.SubAmount(result.Fee.Amount)
+		} else {
+			ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)}) //??????
+			return ack
+			// logger.Error("fee is greater than the amount", "error")
+			// return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
+		}
+
+		// else {
+		// 	logger.Error("fee is greater than the amount", "error")
+		// 	return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
+		// }
+		// token = sdk.NewCoin(result.Fee.Denom, result.Fee.Amount)
+	}
+
+	// //fi amount < fee. it is spamer. we do not need proceed this packet. no timeout for this packet
+	// ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
+	// return ack
+
 	err = im.keeper1.ForwardTransferPacket(ctx, nil, packet, data.Sender, overrideReceiver, metadata, token, retries, timeout, []metrics.Label{}, nonrefundable)
 	if err != nil {
 		logger.Error("packetForwardMiddleware OnRecvPacket error forwarding packet", "error", err)
@@ -176,7 +237,7 @@ func (im IBCMiddleware) OnRecvPacket(
 
 	// charge_coin := sdk.NewCoin(packet.Token.Denom, sdk.ZeroInt())
 	// return channeltypes.NewErrorAcknowledgement(fmt.Errorf("error parsing forward metadata"))
-	// return im.IBCMiddleware.OnRecvPacket(ctx, packet, relayer)
+	return im.IBCMiddleware.OnRecvPacket(ctx, packet, relayer)
 }
 
 func newErrorAcknowledgement(err error) channeltypes.Acknowledgement {
