@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -117,8 +116,7 @@ type BridgeFee struct {
 	Reciever sdk.AccAddress
 }
 
-func (k Keeper) ChargeFee(goCtx context.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+func (k Keeper) ChargeFee(ctx sdk.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
 	params := k.GetParams(ctx)
 	// charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {
@@ -126,8 +124,7 @@ func (k Keeper) ChargeFee(goCtx context.Context, msg *ibctypes.MsgTransfer) (*Br
 		if channelFee != nil {
 			if channelFee.MinTimeoutTimestamp > 0 {
 
-				goCtx := sdk.UnwrapSDKContext(goCtx)
-				blockTime := goCtx.BlockTime()
+				blockTime := ctx.BlockTime()
 
 				timeoutTimeInFuture := time.Unix(0, int64(msg.TimeoutTimestamp))
 				if timeoutTimeInFuture.Before(blockTime) {
@@ -182,7 +179,7 @@ func (k Keeper) ChargeFee(goCtx context.Context, msg *ibctypes.MsgTransfer) (*Br
 			// 	return nil, send_err
 			// }
 			msg.Token.Amount = newAmount
-			return &BridgeFee{fee: charge_coin, sender: msgSender, reciever: feeAddress}, nil
+			return &BridgeFee{Fee: charge_coin, Sender: msgSender, Reciever: feeAddress}, nil
 
 			// if newAmount.LTE(sdk.ZeroInt()) {
 			// 	zeroTransfer := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
