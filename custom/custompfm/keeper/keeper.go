@@ -208,7 +208,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		if token.Amount.GTE(result.Fee.Amount) {
 			token = token.SubAmount(result.Fee.Amount)
 		} else {
-			//bank.send..........
+			// send_err := im.bank.SendCoins(ctx, msgSender, feeAddress, sdk.NewCoins(charge_coin))
 			ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)}) //??????
 			return ack
 			// logger.Error("fee is greater than the amount", "error")
