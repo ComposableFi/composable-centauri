@@ -199,32 +199,24 @@ func (im IBCMiddleware) OnRecvPacket(
 		memo,
 	)
 
-	result, err := im.ibcfeekeeper.ChargeFee(goCtx, tr)
+	result, err := im.ibcfeekeeper.ChargeFee(ctx, tr)
 	if err != nil {
 		logger.Error("packetForwardMiddleware OnRecvPacket error charging fee", "error", err)
 		return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
 	}
 	if result != nil {
-		if token.Amount.GTE(result.Fee.Amount) {
+		if result.Fee.Amount.LT(token.Amount) {
 			token = token.SubAmount(result.Fee.Amount)
 		} else {
-			// send_err := im.bank.SendCoins(ctx, msgSender, feeAddress, sdk.NewCoins(charge_coin))
-			ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)}) //??????
+			send_err := im.bank.SendCoins(ctx, result.Sender, result.Reciever, sdk.NewCoins(result.Fee))
+			if send_err != nil {
+				logger.Error("packetForwardMiddleware OnRecvPacket error sending fee", "error", send_err)
+				return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", send_err))
+			}
+			ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
 			return ack
-			// logger.Error("fee is greater than the amount", "error")
-			// return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
 		}
-
-		// else {
-		// 	logger.Error("fee is greater than the amount", "error")
-		// 	return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
-		// }
-		// token = sdk.NewCoin(result.Fee.Denom, result.Fee.Amount)
 	}
-
-	// //fi amount < fee. it is spamer. we do not need proceed this packet. no timeout for this packet
-	// ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
-	// return ack
 
 	err = im.keeper1.ForwardTransferPacket(ctx, nil, packet, data.Sender, overrideReceiver, metadata, token, retries, timeout, []metrics.Label{}, nonrefundable)
 	if err != nil {
