@@ -16,6 +16,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 	ibctransfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
 )
 
@@ -33,6 +34,7 @@ type IBCMiddleware struct {
 	retriesOnTimeout1 uint8
 	forwardTimeout1   time.Duration
 	refundTimeout1    time.Duration
+	bank              *custombankkeeper.Keeper
 }
 
 func NewIBCMiddleware(
@@ -42,6 +44,7 @@ func NewIBCMiddleware(
 	forwardTimeout time.Duration,
 	refundTimeout time.Duration,
 	ibcfeekeeper ibctransfermiddlewarekeeper.Keeper,
+	bankkeeper *custombankkeeper.Keeper,
 ) IBCMiddleware {
 	return IBCMiddleware{
 		IBCMiddleware: router.NewIBCMiddleware(app, k, retriesOnTimeout, forwardTimeout, refundTimeout),
@@ -53,6 +56,7 @@ func NewIBCMiddleware(
 		retriesOnTimeout1: retriesOnTimeout,
 		forwardTimeout1:   forwardTimeout,
 		refundTimeout1:    refundTimeout,
+		bank:              bankkeeper,
 	}
 }
 
