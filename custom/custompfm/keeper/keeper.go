@@ -74,8 +74,6 @@ func (im IBCMiddleware) OnRecvPacket(
 		return im.IBCMiddleware.OnRecvPacket(ctx, packet, relayer)
 	}
 
-	// params := im.ibcfeekeeper.GetParams(ctx)
-
 	logger.Debug("packetForwardMiddleware OnRecvPacket",
 		"sequence", packet.Sequence,
 		"src-channel", packet.SourceChannel, "src-port", packet.SourcePort,
@@ -227,10 +225,6 @@ func (im IBCMiddleware) OnRecvPacket(
 	// returning nil ack will prevent WriteAcknowledgement from occurring for forwarded packet.
 	// This is intentional so that the acknowledgement will be written later based on the ack/timeout of the forwarded packet.
 	return nil
-
-	// charge_coin := sdk.NewCoin(packet.Token.Denom, sdk.ZeroInt())
-	// return channeltypes.NewErrorAcknowledgement(fmt.Errorf("error parsing forward metadata"))
-	return im.IBCMiddleware.OnRecvPacket(ctx, packet, relayer)
 }
 
 func newErrorAcknowledgement(err error) channeltypes.Acknowledgement {
