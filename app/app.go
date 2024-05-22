@@ -88,7 +88,6 @@ import (
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	custompfm "github.com/notional-labs/composable/v6/custom/custompfm/keeper"
 	customibctransfer "github.com/notional-labs/composable/v6/custom/ibc-transfer"
 	customstaking "github.com/notional-labs/composable/v6/custom/staking"
 	"github.com/spf13/cast"
@@ -340,7 +339,7 @@ func NewComposableApp(
 		enabledProposals,
 	)
 
-	custompfm.NewIBCMiddleware()
+	// custompfm.NewIBCMiddleware()
 	// transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferModule := customibctransfer.NewAppModule(appCodec, app.TransferKeeper, app.BankKeeper)
 	routerModule := router.NewAppModule(app.RouterKeeper)
