@@ -63,13 +63,13 @@ func (im IBCMiddleware) OnRecvPacket(
 ) ibcexported.Acknowledgement {
 	logger := im.keeper1.Logger(ctx)
 
-	im.ibcfeekeeper.GetParams(ctx)
-
 	var data transfertypes.FungibleTokenPacketData
 	if err := transfertypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		logger.Debug(fmt.Sprintf("packetForwardMiddleware OnRecvPacket payload is not a FungibleTokenPacketData: %s", err.Error()))
 		return im.IBCMiddleware.OnRecvPacket(ctx, packet, relayer)
 	}
+
+	// params := im.ibcfeekeeper.GetParams(ctx)
 
 	logger.Debug("packetForwardMiddleware OnRecvPacket",
 		"sequence", packet.Sequence,
