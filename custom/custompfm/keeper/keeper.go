@@ -51,7 +51,6 @@ func NewIBCMiddleware(
 		IBCMiddleware: router.NewIBCMiddleware(app, k, retriesOnTimeout, forwardTimeout, refundTimeout),
 		ibcfeekeeper:  ibcfeekeeper,
 
-		//we need this bz this field is not exported in the parent struct
 		app1:              app,
 		keeper1:           k,
 		retriesOnTimeout1: retriesOnTimeout,
@@ -206,7 +205,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		if result.Fee.Amount.LT(token.Amount) {
 			token = token.SubAmount(result.Fee.Amount)
 		} else {
-			send_err := im.bank.SendCoins(ctx, result.Sender, result.Reciever, sdk.NewCoins(result.Fee))
+			send_err := im.bank.SendCoins(ctx, result.Sender, result.Receiver, sdk.NewCoins(result.Fee))
 			if send_err != nil {
 				logger.Error("packetForwardMiddleware OnRecvPacket error sending fee", "error", send_err)
 				return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", send_err))
