@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
@@ -13,6 +14,7 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
+	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
 
 type Keeper struct {
@@ -53,4 +55,27 @@ func NewKeeper(
 // If the transfer amount is greater than the minimum fee, it will charge the minimum fee and the percentage fee.
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	return k.Keeper.Transfer(goCtx, msg)
+}
+
+func GetPriority(jsonString string) *string {
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonString), &data); err != nil {
+		return nil
+	}
+
+	priority, ok := data["priority"].(string)
+	if !ok {
+		return nil
+	}
+
+	return &priority
+}
+
+func findPriority(priorities []*ibctransfermiddlewaretypes.TxPriorityFee, priority string) *ibctransfermiddlewaretypes.TxPriorityFee {
+	for _, p := range priorities {
+		if p.Priority == priority {
+			return p
+		}
+	}
+	return nil
 }
