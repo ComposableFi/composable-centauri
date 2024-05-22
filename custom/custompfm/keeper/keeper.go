@@ -205,9 +205,10 @@ func (im IBCMiddleware) OnRecvPacket(
 		return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
 	}
 	if result != nil {
-		if token.Amount.LTE(result.Fee.Amount) {
+		if token.Amount.GTE(result.Fee.Amount) {
 			token = token.SubAmount(result.Fee.Amount)
 		} else {
+			//bank.send..........
 			ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)}) //??????
 			return ack
 			// logger.Error("fee is greater than the amount", "error")
