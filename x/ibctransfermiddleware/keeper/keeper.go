@@ -112,12 +112,12 @@ func (k Keeper) GetChannelFeeAddress(ctx sdk.Context, targetChannelID string) st
 }
 
 type BridgeFee struct {
-	fee      sdk.Coin
-	sender   sdk.AccAddress
-	reciever sdk.AccAddress
+	Fee      sdk.Coin
+	Sender   sdk.AccAddress
+	Reciever sdk.AccAddress
 }
 
-func (k Keeper) Transfer(goCtx context.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
+func (k Keeper) ChargeFee(goCtx context.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
 	// charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
