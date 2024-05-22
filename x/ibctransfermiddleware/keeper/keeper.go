@@ -113,7 +113,7 @@ func (k Keeper) GetChannelFeeAddress(ctx sdk.Context, targetChannelID string) st
 type BridgeFee struct {
 	Fee      sdk.Coin
 	Sender   sdk.AccAddress
-	Reciever sdk.AccAddress
+	Receiver sdk.AccAddress
 }
 
 func (k Keeper) ChargeFee(ctx sdk.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
@@ -179,7 +179,7 @@ func (k Keeper) ChargeFee(ctx sdk.Context, msg *ibctypes.MsgTransfer) (*BridgeFe
 			// 	return nil, send_err
 			// }
 			msg.Token.Amount = newAmount
-			return &BridgeFee{Fee: charge_coin, Sender: msgSender, Reciever: feeAddress}, nil
+			return &BridgeFee{Fee: charge_coin, Sender: msgSender, Receiver: feeAddress}, nil
 
 			// if newAmount.LTE(sdk.ZeroInt()) {
 			// 	zeroTransfer := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
