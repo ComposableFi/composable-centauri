@@ -116,7 +116,7 @@ type BridgeFee struct {
 	Receiver sdk.AccAddress
 }
 
-func (k Keeper) ChargeFee(ctx sdk.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
+func (k Keeper) GetBridgeFeeBasedOnConfigForChannelAndDenom(ctx sdk.Context, msg *ibctypes.MsgTransfer) (*BridgeFee, error) {
 	params := k.GetParams(ctx)
 	// charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {

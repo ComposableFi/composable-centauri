@@ -162,8 +162,6 @@ func (im IBCMiddleware) OnRecvPacket(
 		retries = im.retriesOnTimeout1
 	}
 
-	// im.ibcfeekeeper.Transfer()
-
 	feeAmount := sdk.NewDecFromInt(token.Amount).Mul(im.keeper1.GetFeePercentage(ctx)).RoundInt()
 	packetAmount := token.Amount.Sub(feeAmount)
 	packetCoin := sdk.NewCoin(token.Denom, packetAmount)
@@ -196,7 +194,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		memo,
 	)
 
-	result, err := im.ibcfeekeeper.ChargeFee(ctx, tr)
+	result, err := im.ibcfeekeeper.GetBridgeFeeBasedOnConfigForChannelAndDenom(ctx, tr)
 	if err != nil {
 		logger.Error("packetForwardMiddleware OnRecvPacket error charging fee", "error", err)
 		return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
