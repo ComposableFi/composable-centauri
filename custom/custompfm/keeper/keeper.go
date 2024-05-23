@@ -162,8 +162,6 @@ func (im IBCMiddleware) OnRecvPacket(
 		retries = im.retriesOnTimeout1
 	}
 
-	// im.ibcfeekeeper.Transfer()
-
 	feeAmount := sdk.NewDecFromInt(token.Amount).Mul(im.keeper1.GetFeePercentage(ctx)).RoundInt()
 	packetAmount := token.Amount.Sub(feeAmount)
 	packetCoin := sdk.NewCoin(token.Denom, packetAmount)
@@ -177,7 +175,6 @@ func (im IBCMiddleware) OnRecvPacket(
 			im.keeper1.Logger(ctx).Error("packetForwardMiddleware error marshaling next as JSON",
 				"error", err,
 			)
-			// return errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 		}
 		memo = string(memoBz)
 	}
