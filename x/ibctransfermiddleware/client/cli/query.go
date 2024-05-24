@@ -1,10 +1,13 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
 
@@ -20,6 +23,7 @@ func GetQueryCmd() *cobra.Command {
 
 	ibctransfermiddlewareParamsQueryCmd.AddCommand(
 		GetCmdQueryParams(),
+		GetFeeConfigByChannelAndDenom(),
 	)
 
 	return ibctransfermiddlewareParamsQueryCmd
@@ -46,6 +50,37 @@ func GetCmdQueryParams() *cobra.Command {
 			}
 
 			return clientCtx.PrintProto(&res.Params)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetFeeConfigByChannelAndDenom() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "FeeConfigByChannelAndDenom",
+		Short:   "Query bridge fee config by channel and denom",
+		Args:    cobra.MatchAll(cobra.ExactArgs(2), cobra.OnlyValidArgs),
+		Example: fmt.Sprintf("%s query ibctransfermiddleware FeeConfigByChannelAndDenom [channel] [denom]", version.AppName),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryFeeConfigByChannelAndDenomRequest{
+				Channel: args[0],
+				Denom:   args[1],
+			}
+			res, err := queryClient.FeeConfigByChannelAndDenom(cmd.Context(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(&res.Fees)
 		},
 	}
 
