@@ -150,11 +150,33 @@ ictest-upgrade:
 	cd tests/interchaintest && go test -timeout=25m -race -v -run TestCentauriUpgrade .
 
 # Executes all tests via interchaintest after compling a local image as juno:local
-ictest-all: ictest-start-cosmos ictest-start-polkadot ictest-ibc
+ictest-all: ictest-start-cosmos ictest-start-polkadot ictest-ibc ictest-ibc-cosmos ictest-chain-core ictest-pfm ictest-pfm-router ictest-pfm-timeout ictest-miscellaneous ictest-ibc-hooks
 
 # Executes push wasm client tests via interchaintest
 ictest-push-wasm:
 	cd tests/interchaintest && go test -race -v -run TestPushWasmClientCode .
+
+ictest-ibc-cosmos:
+	cd tests/interchaintest && go test -race -v -run TestComposableGaiaIBCTransfer .
+
+ictest-chain-core:
+	cd tests/interchaintest && go test -race -v -run TestCoreSDKCommands .
+
+ictest-pfm-timeout:
+	cd tests/interchaintest && go test -race -v -run TestTimeoutOnForward .
+
+ictest-pfm:
+	cd tests/interchaintest && go test -race -v -run TestPacketForwardMiddleware .
+
+ictest-pfm-router:
+	cd tests/interchaintest && go test -race -v -run TestPacketForwardMiddlewareRouter .
+
+ictest-ibc-hooks:
+	cd tests/interchaintest && go test -race -v -run TestComposableIBCHooks .
+
+ictest-miscellaneous:
+	cd tests/interchaintest && go test -race -v -run TestICTestMiscellaneous .
+
 
 # Init 2 cosmos chains and setup ibc between them
 init-test-interchain: clean-testing-data install
