@@ -162,10 +162,6 @@ func (im IBCMiddleware) OnRecvPacket(
 		retries = im.retriesOnTimeout1
 	}
 
-	feeAmount := sdk.NewDecFromInt(token.Amount).Mul(im.keeper1.GetFeePercentage(ctx)).RoundInt()
-	packetAmount := token.Amount.Sub(feeAmount)
-	packetCoin := sdk.NewCoin(token.Denom, packetAmount)
-
 	memo := ""
 
 	// set memo for next transfer with next from this transfer.
@@ -175,7 +171,8 @@ func (im IBCMiddleware) OnRecvPacket(
 			im.keeper1.Logger(ctx).Error("packetForwardMiddleware error marshaling next as JSON",
 				"error", err,
 			)
-			// return errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+			logger.Error("packetForwardMiddleware OnRecvPacket error marshaling next as JSON", "error", err)
+			return newErrorAcknowledgement(fmt.Errorf("error marshaling next as JSON: %w", err))
 		}
 		memo = string(memoBz)
 	}
@@ -183,7 +180,7 @@ func (im IBCMiddleware) OnRecvPacket(
 	tr := transfertypes.NewMsgTransfer(
 		metadata.Port,
 		metadata.Channel,
-		packetCoin,
+		token,
 		overrideReceiver,
 		metadata.Receiver,
 		clienttypes.Height{
@@ -200,14 +197,19 @@ func (im IBCMiddleware) OnRecvPacket(
 		return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", err))
 	}
 	if result != nil {
-		if result.Fee.Amount.LT(token.Amount) {
-			token = token.SubAmount(result.Fee.Amount)
-		} else {
+		if token.Amount.GTE(result.Fee.Amount) {
 			send_err := im.bank.SendCoins(ctx, result.Sender, result.Receiver, sdk.NewCoins(result.Fee))
 			if send_err != nil {
 				logger.Error("packetForwardMiddleware OnRecvPacket error sending fee", "error", send_err)
 				return newErrorAcknowledgement(fmt.Errorf("error charging fee: %w", send_err))
 			}
+		} else {
+			logger.Error("packetForwardMiddleware OnRecvPacket error charging fee", "error", err)
+			return newErrorAcknowledgement(fmt.Errorf("incorrect fee %w for channel id %s and denom %s", err, tr.SourceChannel, tr.Token.Denom))
+		}
+		if result.Fee.Amount.LT(token.Amount) {
+			token = token.SubAmount(result.Fee.Amount)
+		} else {
 			ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
 			return ack
 		}
