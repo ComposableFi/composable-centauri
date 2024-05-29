@@ -1385,10 +1385,10 @@ github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag h1:lnMn2O2
 github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag/go.mod h1:oV/k6GJgXV9QPoM2fsYDPPsyPBgQbdotv532O6Mz1OQ=
 github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240508031447-347412725653 h1:P7Chh5O10Jtv+vvfaVpG72fv5LKVWQLEtCKQrMtbBdw=
 github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240508031447-347412725653/go.mod h1:NS+Ooc0vOyr1mAgAbt/HS8Dpes2dV7/YgOc+WxD63O4=
-github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240522081622-85c49c80dc29 h1:h+EVIIwTI9iBtUhgBay5dJs+bUCnTHDOaXT0uujm6Zs=
-github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240522081622-85c49c80dc29/go.mod h1:u2FXNcSxzzn5IwjWBA51HKMwiYMRK6/G35VmSJULhP0=
-github.com/notional-labs/ibc-go/v8 v8.0.0-alpha.1.0.20240515181700-c058e14324e8 h1:RkivXDi3NoRZEjdbO0ueSykCnb7FPaBR0F8sWn5DlFM=
-github.com/notional-labs/ibc-go/v8 v8.0.0-alpha.1.0.20240515181700-c058e14324e8/go.mod h1:x024D7fnWnTL6wNeoHbe0+JSjDaoQ3CNvJY8o9F4imE=
+github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240528171744-4baae4266be1 h1:QIyze/ch1sy7SNtEH0szWzH7aLAeB+XADl9eniLYQlc=
+github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240528171744-4baae4266be1/go.mod h1:u2FXNcSxzzn5IwjWBA51HKMwiYMRK6/G35VmSJULhP0=
+github.com/notional-labs/ibc-go/v8 v8.0.0-alpha.1.0.20240528170913-e5e7d5434f75 h1:0o7I3+n65GCz1P1mDfSPqHE9iVJeQi8fyiQ086Kd6YI=
+github.com/notional-labs/ibc-go/v8 v8.0.0-alpha.1.0.20240528170913-e5e7d5434f75/go.mod h1:x024D7fnWnTL6wNeoHbe0+JSjDaoQ3CNvJY8o9F4imE=
 github.com/nunnatsa/ginkgolinter v0.9.0 h1:Sm0zX5QfjJzkeCjEp+t6d3Ha0jwvoDjleP9XCsrEzOA=
 github.com/nunnatsa/ginkgolinter v0.9.0/go.mod h1:FHaMLURXP7qImeH6bvxWJUpyH+2tuqe5j4rW1gxJRmI=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=

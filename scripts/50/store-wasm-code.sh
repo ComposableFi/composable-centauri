@@ -4,11 +4,17 @@ DENOM="ppica"
 HOME_DIR="mytestnet"
 CHAINID="centauri-dev"
 BINARY=picad
-WASM_CONTRACT_PATH="$PWD/bin/ics10_grandpa_cw.wasm"
+WASM_CONTRACT_PATH="composable-ibc/target/wasm32-unknown-unknown/release/ics10_grandpa_cw.wasm"
+
+HEX_CHECKSUM=$(sha256sum "$WASM_CONTRACT_PATH" | awk '{ print $1 }')
+echo "Hex checksum is: $HEX_CHECKSUM"
+
 
 # Wait for chain to start 
 echo "Waiting for chain to start..."
+sleep 10
 
+exit 0
 picad keys show mykey --keyring-backend test --home mytestnet
 
 $BINARY tx ibc-wasm store-code $WASM_CONTRACT_PATH --from mykey --keyring-backend test --chain-id $CHAINID --home $HOME_DIR --gas 20002152622 --fees 20020166${DENOM}  -y
