@@ -4,7 +4,7 @@ DENOM="ppica"
 HOME_DIR="mytestnet"
 CHAINID="centauri-dev"
 BINARY=_build/new/picad
-WASM_CONTRACT_PATH="$PWD/bin/ics10_grandpa_cw.wasm"
+WASM_CONTRACT_PATH="composable-ibc/target/wasm32-unknown-unknown/release/ics10_grandpa_cw.wasm"
 
 WASM_CLIENT_ID="08-wasm-0"
 HEX_CHECKSUM=$(sha256sum "$WASM_CONTRACT_PATH" | awk '{ print $1 }')
