@@ -171,6 +171,7 @@ func SetupWithGenesisValSet(
 	// init chain will set the validator set and initialize the genesis accounts
 	_, err = app.InitChain(
 		&abci.RequestInitChain{
+			Time:            time.Now(),
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: consensusParams,

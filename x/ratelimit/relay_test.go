@@ -1,6 +1,7 @@
 package ratelimit_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -390,6 +391,7 @@ func (suite *RateLimitTestSuite) TestReceiveIBCTokenWithMinRateLimitAmount() {
 
 	// not receive token because catch the threshold => balances have no change
 	gotBalance = suite.chainB.AllBalances(suite.chainB.SenderAccount.GetAddress())
+	fmt.Println(expBalance.String(), gotBalance.String())
 	suite.Require().Equal(expBalance, gotBalance)
 }
 
