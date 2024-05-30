@@ -26,7 +26,7 @@ type Keeper struct {
 	authority         string
 	mintKeeper        mintkeeper.Keeper
 	distrKeeper       distkeeper.Keeper
-	authKeeper        minttypes.AccountKeeper
+	accountKeeper     types.AccountKeeper
 }
 
 func (k Keeper) BlockValidatorUpdates(ctx context.Context) ([]abcicometbft.ValidatorUpdate, error) {
@@ -142,6 +142,7 @@ func NewKeeper(
 		cdc:               cdc,
 		mintKeeper:        mintkeeper.Keeper{},
 		distrKeeper:       distkeeper.Keeper{},
+		accountKeeper:     ak,
 	}
 	return &keeper
 }
@@ -172,7 +173,7 @@ func (k Keeper) SlashWithInfractionReason(ctx context.Context, consAddr sdk.Cons
 	if err != nil {
 		k.Logger(ctx).Error("Failed to mint slashed coins: ", amountBurned)
 	} else {
-		err = k.distrKeeper.FundCommunityPool(ctx, coins, k.authKeeper.GetModuleAddress(minttypes.ModuleName))
+		err = k.distrKeeper.FundCommunityPool(ctx, coins, k.accountKeeper.GetModuleAddress(minttypes.ModuleName))
 		if err != nil {
 			k.Logger(ctx).Error(fmt.Sprintf("Failed to fund community pool. Tokens minted to the staking module account: %d. ", amountBurned))
 		} else {
