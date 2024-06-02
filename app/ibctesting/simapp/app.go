@@ -106,6 +106,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
 
+	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
@@ -129,7 +130,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	solomachine "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
 	ibcmock "github.com/cosmos/ibc-go/v7/testing/mock"
 	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
 )

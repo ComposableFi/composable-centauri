@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	composable "github.com/notional-labs/composable/v6/app"
 	"github.com/stretchr/testify/require"
 
@@ -29,6 +28,7 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 )
 

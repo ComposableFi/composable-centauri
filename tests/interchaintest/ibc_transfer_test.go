@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/polkadot"
@@ -18,6 +17,8 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
+
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
 // TestHyperspace features
@@ -204,7 +205,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	require.Equal(t, polkadotChannelOutput[0].PortID, "transfer")*/
 
 	// Start relayer
-	r.StartRelayer(ctx, eRep, pathName)
+	err = r.StartRelayer(ctx, eRep, pathName)
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		err = r.StopRelayer(ctx, eRep)
@@ -290,7 +291,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 func pushWasmContractViaGov(t *testing.T, ctx context.Context, centaurid *cosmos.CosmosChain) string {
 	// Set up cosmos user for pushing new wasm code msg via governance
 	fundAmountForGov := int64(10_000_000_000)
-	contractUsers := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(fundAmountForGov), centaurid)
+	contractUsers := interchaintest.GetAndFundTestUsers(t, ctx, "default", fundAmountForGov, centaurid)
 	contractUser := contractUsers[0]
 
 	contractUserBalInitial, err := centaurid.GetBalance(ctx, contractUser.FormattedAddress(), centaurid.Config().Denom)

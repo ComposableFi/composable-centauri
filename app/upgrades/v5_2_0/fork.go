@@ -7,11 +7,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/notional-labs/composable/v6/app/keepers"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 )
 
 const (
@@ -44,12 +43,13 @@ func UpdateWasmContract(ctx sdk.Context, ibckeeper *ibckeeper.Keeper) {
 		panic("cannot update client")
 	}
 
-	code, err := transfertypes.ParseHexHash(newWasmCodeID)
-	if err != nil {
-		panic(err)
-	}
+	// commented out to ensure that this runs correctly with the mainline wasm client.
+	//	code, err := transfertypes.ParseHexHash(newWasmCodeID)
+	//	if err != nil {
+	//		panic(err)
+	//	}
 
-	clientState.CodeId = code
+	//	clientState.Code = code
 
 	ibckeeper.ClientKeeper.SetClientState(ctx, subjectClientId, clientState)
 }

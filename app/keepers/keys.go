@@ -29,10 +29,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 )
 
 // GenerateKeys generates new keys (KV Store, Transient store, and memory store).

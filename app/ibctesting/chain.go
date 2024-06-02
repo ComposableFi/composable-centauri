@@ -47,6 +47,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	tmversion "github.com/cometbft/cometbft/version"
 
+	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
@@ -55,7 +56,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/cosmos/ibc-go/v7/modules/core/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"

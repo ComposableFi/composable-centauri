@@ -95,6 +95,9 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
 
+	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
+	wasm08keeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer"
@@ -105,9 +108,6 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	tendermint "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm"
-	wasm08keeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
 )
 

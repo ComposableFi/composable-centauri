@@ -34,7 +34,7 @@ func NewTendermintConfig(isWasmClient bool) *TendermintConfig {
 
 func (tmcfg *TendermintConfig) GetClientType() string {
 	if tmcfg.IsWasmClient {
-		return exported.Wasm
+		return exported.ModuleName
 	}
 	return exported.Tendermint
 }

@@ -24,6 +24,7 @@ func TestCentauriUpgrade(t *testing.T) {
 }
 
 func CosmosChainUpgradeTest(t *testing.T, upgradeContainerRepo, upgradeVersion, upgradeName string) {
+	t.Helper()
 	if testing.Short() {
 		t.Skip("skipping in short mode")
 	}

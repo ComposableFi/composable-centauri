@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	wasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -12,7 +13,6 @@ import (
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	wasmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 )
 
@@ -97,8 +97,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			return err
 		}
 		consensusState = &wasmtypes.ConsensusState{
-			Data:      wasmConsensusState,
-			Timestamp: tmConsensusState.GetTimestamp(),
+			Data: wasmConsensusState,
 		}
 	default:
 		err = fmt.Errorf("client type %s is not supported", endpoint.ClientConfig.GetClientType())

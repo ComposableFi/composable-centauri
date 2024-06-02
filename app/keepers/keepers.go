@@ -71,6 +71,8 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	wasmclientkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
@@ -82,8 +84,6 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	wasmclientkeeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 )
 
 const (
@@ -211,7 +211,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
 		appKeepers.DistrKeeper,
-		//		authtypes.FeeCollectorName, // used only in later alliance versions
+		authtypes.FeeCollectorName, // used only in later alliance versions
 	)
 
 	appKeepers.BankKeeper.RegisterKeepers(appKeepers.AllianceKeeper, appKeepers.StakingKeeper)
@@ -233,7 +233,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		govModuleAuthority = *devnetGov
 	}
 
-	appKeepers.Wasm08Keeper = wasmclientkeeper.NewKeeper(appCodec, appKeepers.keys[wasm08types.StoreKey], govModuleAuthority, homePath, &appKeepers.IBCKeeper.ClientKeeper)
+	appKeepers.Wasm08Keeper = wasmclientkeeper.NewKeeperWithVM(appCodec, appKeepers.keys[wasm08types.StoreKey], &appKeepers.IBCKeeper.ClientKeeper, govModuleAuthority, vm, bApp.GRPCQueryRouter())
 
 	// ICA Host keeper
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(

@@ -16,7 +16,6 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
-	// simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 )
 
 const (

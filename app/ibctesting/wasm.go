@@ -8,13 +8,13 @@ import (
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
+	wasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	wasmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
 )
 
 // ConstructUpdateWasmClientHeader will construct a valid 08-wasm Header with a zero height
 // to update the light client on the source chain.
-func (chain *TestChain) ConstructUpdateWasmClientHeader(counterparty *TestChain, clientID string) (*wasmtypes.Header, error) {
+func (chain *TestChain) ConstructUpdateWasmClientHeader(counterparty *TestChain, clientID string) (*wasmtypes.UpdateStateMsg, error) {
 	return chain.ConstructUpdateWasmClientHeaderWithTrustedHeight(counterparty, clientID, clienttypes.ZeroHeight())
 }
 
@@ -49,7 +49,7 @@ func (chain *TestChain) CreateWasmClientHeader(chainID string, blockHeight int64
 	require.NoError(chain.t, err)
 	height, ok := tmHeader.GetHeight().(clienttypes.Height)
 	require.True(chain.t, ok)
-	return &wasmtypes.Header{
+	return &wasmtypes.UpdateStateMsg{
 		Data:   tmWasmHeaderData,
 		Height: height,
 	}

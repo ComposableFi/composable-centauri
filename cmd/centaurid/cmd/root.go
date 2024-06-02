@@ -10,6 +10,10 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
+	dbm "github.com/cometbft/cometbft-db"
+	tmcfg "github.com/cometbft/cometbft/config"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -28,11 +32,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
-	dbm "github.com/cometbft/cometbft-db"
-	tmcfg "github.com/cometbft/cometbft/config"
-	tmcli "github.com/cometbft/cometbft/libs/cli"
-	"github.com/cometbft/cometbft/libs/log"
 )
 
 const (

@@ -1,6 +1,8 @@
 module github.com/notional-labs/composable/v6
 
-go 1.19
+go 1.21
+
+toolchain go1.21.5
 
 require (
 	cosmossdk.io/math v1.2.0
@@ -14,6 +16,7 @@ require (
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.1.1
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v7 v7.0.0-20231212181537-128259979a8d
+	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.1.1-0.20231213092633-b306e7a706e1
 	github.com/cosmos/ibc-go/v7 v7.3.1
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.3
@@ -196,11 +199,15 @@ replace (
 	// Use the keyring specified by the cosmos-sdk
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 
+	// use modified packet-forward-middleware
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20231027045618-f659894b12d9
 
-	// ibc-go with wasm client
-	github.com/cosmos/ibc-go/v7 => github.com/notional-labs/ibc-go/v7 v7.2.1-0.20231010040541-6cf43006971f
+	// lock ibc-go
+	github.com/cosmos/ibc-go/v7 => github.com/cosmos/ibc-go/v7 v7.3.1
+
+	// Use bumped ict
+	// github.com/strangelove-ventures/interchaintest/v7 => github.com/notional-labs/interchaintest/v7 v7.1.3-0.20231227064202-0433ee100177
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-	github.com/terra-money/alliance => github.com/notional-labs/alliance v1.0.1-0.20231106184124-5cc1ff759647
+	github.com/terra-money/alliance => github.com/notional-labs/alliance v1.0.1-0.20230904015751-fec6135c3daa
 )
