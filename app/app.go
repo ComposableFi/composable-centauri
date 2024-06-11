@@ -330,6 +330,7 @@ func NewComposableApp(
 		appOpts,
 	)
 
+	// custompfm.NewIBCMiddleware()
 	// transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferModule := customibctransfer.NewAppModule(appCodec, app.TransferKeeper, app.BankKeeper)
 	pfmModule := pfm.NewAppModule(app.PfmKeeper, app.GetSubspace(pfmtypes.ModuleName))
