@@ -2,19 +2,15 @@ package helpers
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 	"time"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -24,7 +20,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/v7/testing/mock"
+	"github.com/cosmos/ibc-go/v8/testing/mock"
 	"github.com/stretchr/testify/require"
 
 	composable "github.com/notional-labs/composable/v6/app"
@@ -59,49 +55,21 @@ type EmptyAppOptions struct{}
 func (EmptyAppOptions) Get(_ string) interface{} { return nil }
 
 func NewContextForApp(app composable.ComposableApp) sdk.Context {
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{
-		ChainID: fmt.Sprintf("test-chain-%s", tmrand.Str(4)),
-		Height:  1,
-	})
+	ctx := app.BaseApp.NewContext(false)
 	return ctx
 }
 
-func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *composable.ComposableApp {
-	t.Helper()
-	app, genesisState := setup(!isCheckTx, invCheckPeriod)
-	if !isCheckTx {
-		// InitChain must be called to stop deliverState from being nil
-		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
-		require.NoError(t, err)
-
-		// Initialize the chain
-		app.InitChain(
-			abci.RequestInitChain{
-				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: DefaultConsensusParams,
-				AppStateBytes:   stateBytes,
-			},
-		)
-	}
-
-	return app
-}
-
-func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*composable.ComposableApp, composable.GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint) (*composable.ComposableApp, composable.GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := composable.MakeEncodingConfig()
 	app := composable.NewComposableApp(
 		log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		wasmtypes.EnableAllProposals,
 		map[int64]bool{},
 		composable.DefaultNodeHome,
 		invCheckPeriod,
-		encCdc,
 		EmptyAppOptions{},
-		opts,
 	)
 	if withGenesis {
 		return app, composable.NewDefaultGenesisState()
@@ -124,29 +92,27 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	baseapp.SetChainID(chainID)(app.GetBaseApp())
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
-		abci.RequestInitChain{
+	_, err = app.InitChain(
+		&abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
+			InitialHeight:   app.LastBlockHeight() + 1,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 
-	// commit genesis changes
-	// app.BaseApp.Set
-	app.Commit()
-	app.BeginBlock(
-		abci.RequestBeginBlock{
-			Header: tmproto.Header{
-				ChainID:            chainID,
-				Height:             app.LastBlockHeight() + 1,
-				AppHash:            app.LastCommitID().Hash,
-				ValidatorsHash:     valSet.Hash(),
-				NextValidatorsHash: valSet.Hash(),
-			},
-		},
-	)
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height:             app.LastBlockHeight() + 1,
+		Hash:               app.LastCommitID().Hash,
+		NextValidatorsHash: valSet.Hash(),
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	return app
 }
@@ -165,7 +131,7 @@ func SetupComposableAppWithValSet(t *testing.T) *composable.ComposableApp {
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	amount, ok := sdk.NewIntFromString("10000000000000000000")
+	amount, ok := math.NewIntFromString("10000000000000000000")
 	require.True(t, ok)
 
 	balance := banktypes.Balance{
@@ -191,7 +157,7 @@ func SetupComposableAppWithValSetWithGenAccout(t *testing.T) (*composable.Compos
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	amount, ok := sdk.NewIntFromString("10000000000000000000")
+	amount, ok := math.NewIntFromString("10000000000000000000")
 	require.True(t, ok)
 
 	balance := banktypes.Balance{
@@ -201,6 +167,7 @@ func SetupComposableAppWithValSetWithGenAccout(t *testing.T) (*composable.Compos
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	for _, val := range valSet.Validators {
+		//lint:ignore SA1019
 		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 

@@ -2,11 +2,11 @@ package interchaintest
 
 import (
 	"context"
+	"github.com/strangelove-ventures/interchaintest/v8"
 	"testing"
 
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 )
@@ -28,7 +28,7 @@ func TestBasicCentauri(t *testing.T) {
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "centauri",
-			ChainConfig:   centauriConfig,
+			ChainConfig:   CentauriConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},

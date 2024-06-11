@@ -1,0 +1,13 @@
+{
+  "name": "polkadot-js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@polkadot/api": "^10.12.6",
+    "@polkadot/keyring": "^12.6.2"
+  }
+}

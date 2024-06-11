@@ -24,65 +24,65 @@ const (
 
 // GenInflation randomized Inflation
 func GenInflation(r *rand.Rand) math.LegacyDec {
-	return sdk.NewDecWithPrec(int64(r.Intn(99)), 2)
+	return math.LegacyNewDecWithPrec(int64(r.Intn(99)), 2)
 }
 
 // GenInflationRateChange randomized InflationRateChange
 func GenInflationRateChange(r *rand.Rand) math.LegacyDec {
-	return sdk.NewDecWithPrec(int64(r.Intn(99)), 2)
+	return math.LegacyNewDecWithPrec(int64(r.Intn(99)), 2)
 }
 
 // GenInflationMax randomized InflationMax
 func GenInflationMax(r *rand.Rand) math.LegacyDec {
-	return sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 10, 30)), 2)
+	return math.LegacyNewDecWithPrec(int64(simtypes.RandIntBetween(r, 10, 30)), 2)
 }
 
 // GenAnnualProvisions randomized AnnualProvisions
 func GenAnnualProvisions(r *rand.Rand) math.LegacyDec {
-	return sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 10)), 2)
+	return math.LegacyNewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 10)), 2)
 }
 
 // GenInflationMin randomized InflationMin
 func GenInflationMin(r *rand.Rand) math.LegacyDec {
-	return sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 10)), 2)
+	return math.LegacyNewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 10)), 2)
 }
 
 // GenGoalBonded randomized GoalBonded
 func GenGoalBonded(r *rand.Rand) math.LegacyDec {
-	return sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 50, 100)), 2)
+	return math.LegacyNewDecWithPrec(int64(simtypes.RandIntBetween(r, 50, 100)), 2)
 }
 
 // RandomizeGenState generates a random GenesisState for wasm
 func RandomizedGenState(simState *module.SimulationState) {
 	// minter
-	var inflation sdk.Dec
+	var inflation math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, Inflation, &inflation, simState.Rand,
+		Inflation, &inflation, simState.Rand,
 		func(r *rand.Rand) { inflation = GenInflation(r) },
 	)
 
 	// params
-	var inflationRateChange sdk.Dec
+	var inflationRateChange math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, InflationRateChange, &inflationRateChange, simState.Rand,
+		InflationRateChange, &inflationRateChange, simState.Rand,
 		func(r *rand.Rand) { inflationRateChange = GenInflationRateChange(r) },
 	)
 
-	var annualProvisions sdk.Dec
+	var annualProvisions math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, AnnualProvisions, &annualProvisions, simState.Rand,
+		AnnualProvisions, &annualProvisions, simState.Rand,
 		func(r *rand.Rand) { annualProvisions = GenAnnualProvisions(r) },
 	)
 
-	var goalBonded sdk.Dec
+	var goalBonded math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, GoalBonded, &goalBonded, simState.Rand,
+		GoalBonded, &goalBonded, simState.Rand,
 		func(r *rand.Rand) { goalBonded = GenGoalBonded(r) },
 	)
 
-	var inflationMax sdk.Dec
+	var inflationMax math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, InflationMax, &inflationMax, simState.Rand,
+		InflationMax, &inflationMax, simState.Rand,
 		func(r *rand.Rand) { inflationMax = GenInflationMax(r) },
 	)
 
@@ -98,10 +98,10 @@ func RandomizedGenState(simState *module.SimulationState) {
 			InflationRateChange: inflationRateChange,
 			GoalBonded:          goalBonded,
 			BlocksPerYear:       blocksPerYear,
-			MaxTokenPerYear:     sdk.NewIntFromUint64(1000000000000000),
-			MinTokenPerYear:     sdk.NewIntFromUint64(800000000000000),
+			MaxTokenPerYear:     math.NewIntFromUint64(1000000000000000),
+			MinTokenPerYear:     math.NewIntFromUint64(800000000000000),
 		},
-		IncentivesSupply: sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, sdk.NewInt(100000000000)),
+		IncentivesSupply: sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, math.NewInt(100000000000)),
 	}
 
 	_, err := simState.Cdc.MarshalJSON(&mintGenesis)

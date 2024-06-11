@@ -1,14 +1,16 @@
 package ante
 
 import (
-	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	circuitante "cosmossdk.io/x/circuit/ante"
+	circuitkeeper "cosmossdk.io/x/circuit/keeper"
+	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
+	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	tfmwKeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
 	txBoundaryAnte "github.com/notional-labs/composable/v6/x/tx-boundary/ante"
@@ -24,10 +26,11 @@ func NewAnteHandler(
 	feegrantKeeper ante.FeegrantKeeper,
 	txFeeChecker ante.TxFeeChecker,
 	sigGasConsumer ante.SignatureVerificationGasConsumer,
-	signModeHandler signing.SignModeHandler,
+	signModeHandler *signing.HandlerMap,
 	channelKeeper *ibckeeper.Keeper,
 	tfmwKeeper tfmwKeeper.Keeper,
 	txBoundaryKeeper txBoundaryKeeper.Keeper,
+	ck *circuitkeeper.Keeper,
 	codec codec.BinaryCodec,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
@@ -35,6 +38,7 @@ func NewAnteHandler(
 		ante.NewValidateBasicDecorator(),
 		ante.NewConsumeGasForTxSizeDecorator(ak),
 		ante.NewDeductFeeDecorator(ak, bk, feegrantKeeper, txFeeChecker),
+		circuitante.NewCircuitBreakerDecorator(ck),
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(ak),
 		ante.NewConsumeGasForTxSizeDecorator(ak),

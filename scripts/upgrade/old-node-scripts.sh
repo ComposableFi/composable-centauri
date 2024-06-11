@@ -1,5 +1,6 @@
 ADDITIONAL_SCRIPTS=(
-    "./scripts/upgrade/v_6_4_8/setup-08-wasm.sh"
+    "./scripts/upgrade/v_6_6_0/setup-08-wasm.sh"
+    "./scripts/upgrade/v_6_6_0/setup-relayer-account.sh"
 )
 
 for SCRIPT in "${ADDITIONAL_SCRIPTS[@]}"; do

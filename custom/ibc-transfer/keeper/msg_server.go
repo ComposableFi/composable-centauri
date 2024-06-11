@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
@@ -33,7 +34,7 @@ func NewMsgServerImpl(ibcKeeper Keeper, bankKeeper custombankkeeper.Keeper) type
 func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.Keeper.IbcTransfermiddleware.GetParams(ctx)
-	charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
+	charge_coin := sdk.NewCoin(msg.Token.Denom, sdkmath.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {
 		channelFee := findChannelParams(params.ChannelFees, msg.SourceChannel)
 		if channelFee != nil {
@@ -95,7 +96,7 @@ func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*typ
 				return nil, send_err
 			}
 
-			if newAmount.LTE(sdk.ZeroInt()) {
+			if newAmount.LTE(sdkmath.ZeroInt()) {
 				return &types.MsgTransferResponse{}, nil
 			}
 			msg.Token.Amount = newAmount

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"
@@ -19,7 +20,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 func (k Keeper) IterateParaTokenInfos(ctx sdk.Context, fn func(index int64, info types.ParachainIBCTokenInfo) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyParachainIBCTokenInfoByAssetID)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyParachainIBCTokenInfoByAssetID)
 	defer iterator.Close()
 
 	i := int64(0)

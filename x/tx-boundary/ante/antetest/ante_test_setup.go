@@ -1,10 +1,12 @@
 package antetest
 
 import (
+	"context"
 	"time"
 
-	"cosmossdk.io/math"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"cosmossdk.io/math"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -16,14 +18,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/v7/testing/mock"
+	"github.com/cosmos/ibc-go/v8/testing/mock"
 	"github.com/notional-labs/composable/v6/app"
 	"github.com/notional-labs/composable/v6/app/helpers"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
-var BaseBalance = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000000)))
+var BaseBalance = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(10000000000)))
 
 type AnteTestSuite struct {
 	suite.Suite
@@ -40,7 +42,7 @@ type AnteTestSuite struct {
 
 func (suite *AnteTestSuite) SetupTest() {
 	suite.app, suite.delegator, suite.validators = helpers.SetupComposableAppWithValSetWithGenAccout(suite.T())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "centauri-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{Height: 1, ChainID: "centauri-1", Time: time.Now().UTC()})
 	app.FundAccount(suite.app.BankKeeper, suite.ctx, suite.delegator, BaseBalance)
 
 	encodingConfig := app.MakeEncodingConfig()
@@ -56,7 +58,9 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	for _, val := range valSet.Validators {
+		// lint:ignore SA1019 reason for ignoring
 		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),
@@ -84,7 +88,7 @@ func (s *AnteTestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums, accSe
 		sigV2 := signing.SignatureV2{
 			PubKey: priv.PubKey(),
 			Data: &signing.SingleSignatureData{
-				SignMode:  s.clientCtx.TxConfig.SignModeHandler().DefaultMode(),
+				SignMode:  signing.SignMode(s.clientCtx.TxConfig.SignModeHandler().DefaultMode().Number()),
 				Signature: nil,
 			},
 			Sequence: accSeqs[i],
@@ -105,7 +109,8 @@ func (s *AnteTestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums, accSe
 			Sequence:      accSeqs[i],
 		}
 		sigV2, err := tx.SignWithPrivKey(
-			s.clientCtx.TxConfig.SignModeHandler().DefaultMode(),
+			context.Background(),
+			signing.SignMode(s.clientCtx.TxConfig.SignModeHandler().DefaultMode().Number()),
 			signerData,
 			s.txBuilder,
 			priv,

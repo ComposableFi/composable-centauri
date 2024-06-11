@@ -9,7 +9,7 @@ import (
 
 // NewMinter returns a new Minter object with the given inflation and annual
 // provisions values.
-func NewMinter(inflation, annualProvisions sdk.Dec) Minter {
+func NewMinter(inflation, annualProvisions math.LegacyDec) Minter {
 	return Minter{
 		Inflation:        inflation,
 		AnnualProvisions: annualProvisions,
@@ -17,10 +17,10 @@ func NewMinter(inflation, annualProvisions sdk.Dec) Minter {
 }
 
 // InitialMinter returns an initial Minter object with a given inflation value.
-func InitialMinter(inflation sdk.Dec) Minter {
+func InitialMinter(inflation math.LegacyDec) Minter {
 	return NewMinter(
 		inflation,
-		sdk.NewDec(0),
+		math.LegacyNewDec(0),
 	)
 }
 
@@ -30,7 +30,7 @@ func DefaultInitialMinter() Minter {
 	return InitialMinter(
 		// Create a new Dec from integer with decimal place at prec
 		// CONTRACT: prec <= Precision
-		sdk.NewDecWithPrec(InflationRate, Precision),
+		math.LegacyNewDecWithPrec(InflationRate, Precision),
 	)
 }
 
@@ -44,8 +44,8 @@ func ValidateMinter(minter Minter) error {
 }
 
 // NextInflationRate returns the new inflation rate for the next hour.
-func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec, totalStakingSupply math.Int) sdk.Dec {
-	totalStakingSupplyDec := sdk.NewDecFromInt(totalStakingSupply)
+func (m Minter) NextInflationRate(params Params, bondedRatio math.LegacyDec, totalStakingSupply math.Int) math.LegacyDec {
+	totalStakingSupplyDec := math.LegacyNewDecFromInt(totalStakingSupply)
 	if totalStakingSupplyDec.LT(math.LegacySmallestDec()) {
 		return m.Inflation // assert if totalStakingSupplyDec = 0
 	}
@@ -57,16 +57,16 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec, totalStaki
 	// 7% and 20%.
 
 	// (1 - bondedRatio/GoalBonded) * InflationRateChange
-	inflationRateChangePerYear := sdk.OneDec().
+	inflationRateChangePerYear := math.LegacyOneDec().
 		Sub(bondedRatio.Quo(params.GoalBonded)).
 		Mul(params.InflationRateChange)
-	inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
+	inflationRateChange := inflationRateChangePerYear.Quo(math.LegacyNewDec(int64(params.BlocksPerYear)))
 
 	// adjust the new annual inflation for this next cycle
 	inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
 
-	inflationMax := sdk.NewDecFromInt(params.MaxTokenPerYear).Quo(totalStakingSupplyDec)
-	inflationMin := sdk.NewDecFromInt(params.MinTokenPerYear).Quo(totalStakingSupplyDec)
+	inflationMax := math.LegacyNewDecFromInt(params.MaxTokenPerYear).Quo(totalStakingSupplyDec)
+	inflationMin := math.LegacyNewDecFromInt(params.MinTokenPerYear).Quo(totalStakingSupplyDec)
 
 	if inflation.GT(inflationMax) {
 		inflation = inflationMax
@@ -80,13 +80,13 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec, totalStaki
 
 // NextAnnualProvisions returns the annual provisions based on current total
 // supply and inflation rate.
-func (m Minter) NextAnnualProvisions(_ Params, totalSupply math.Int) sdk.Dec {
+func (m Minter) NextAnnualProvisions(_ Params, totalSupply math.Int) math.LegacyDec {
 	return m.Inflation.MulInt(totalSupply)
 }
 
 // BlockProvision returns the provisions for a block based on the annual
 // provisions rate.
 func (m Minter) BlockProvision(params Params) sdk.Coin {
-	provisionAmt := m.AnnualProvisions.QuoInt(sdk.NewInt(int64(params.BlocksPerYear)))
+	provisionAmt := m.AnnualProvisions.QuoInt(math.NewInt(int64(params.BlocksPerYear)))
 	return sdk.NewCoin(params.MintDenom, provisionAmt.TruncateInt())
 }

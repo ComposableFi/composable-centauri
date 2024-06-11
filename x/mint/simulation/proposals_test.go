@@ -7,6 +7,7 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"gotest.tools/v3/assert"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -39,9 +40,9 @@ func TestProposalMsgs(t *testing.T) {
 
 	assert.Equal(t, sdk.AccAddress(address.Module("gov")).String(), msgUpdateParams.Authority)
 	assert.Equal(t, uint64(20546551), msgUpdateParams.Params.BlocksPerYear)
-	assert.DeepEqual(t, sdk.NewDecWithPrec(56, 2), msgUpdateParams.Params.GoalBonded)
-	assert.DeepEqual(t, sdk.NewDecWithPrec(1, 2), msgUpdateParams.Params.InflationRateChange)
-	assert.DeepEqual(t, sdk.NewInt(99997750760398084), msgUpdateParams.Params.MaxTokenPerYear)
-	assert.DeepEqual(t, sdk.NewInt(504064263676792), msgUpdateParams.Params.MinTokenPerYear)
+	assert.DeepEqual(t, sdkmath.LegacyNewDecWithPrec(56, 2), msgUpdateParams.Params.GoalBonded)
+	assert.DeepEqual(t, sdkmath.LegacyNewDecWithPrec(1, 2), msgUpdateParams.Params.InflationRateChange)
+	assert.DeepEqual(t, sdkmath.NewInt(99997750760398084), msgUpdateParams.Params.MaxTokenPerYear)
+	assert.DeepEqual(t, sdkmath.NewInt(504064263676792), msgUpdateParams.Params.MinTokenPerYear)
 	assert.Equal(t, "XhhuTSkuxK", msgUpdateParams.Params.MintDenom)
 }

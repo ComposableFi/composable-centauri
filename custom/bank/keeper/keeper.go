@@ -3,53 +3,47 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	accountkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	banktypes "github.com/notional-labs/composable/v6/custom/bank/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	banktypes "github.com/notional-labs/composable/v6/custom/bank/types"
-
 	transfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
-
-	alliancekeeper "github.com/terra-money/alliance/x/alliance/keeper"
 )
 
 type Keeper struct {
 	bankkeeper.BaseKeeper
-
 	tfmk banktypes.TransferMiddlewareKeeper
-	ak   alliancekeeper.Keeper
 	sk   banktypes.StakingKeeper
-	acck accountkeeper.AccountKeeper
+	ak   accountkeeper.AccountKeeper
 }
 
 var _ bankkeeper.Keeper = Keeper{}
 
 func NewBaseKeeper(
+	logger log.Logger,
 	cdc codec.BinaryCodec,
-	storeKey storetypes.StoreKey,
+	storeService store.KVStoreService,
 	ak accountkeeper.AccountKeeper,
 	blockedAddrs map[string]bool,
 	tfmk *transfermiddlewarekeeper.Keeper,
 	authority string,
 ) Keeper {
 	keeper := Keeper{
-		BaseKeeper: bankkeeper.NewBaseKeeper(cdc, storeKey, ak, blockedAddrs, authority),
-		ak:         alliancekeeper.Keeper{},
-		sk:         stakingkeeper.Keeper{},
+		BaseKeeper: bankkeeper.NewBaseKeeper(cdc, storeService, ak, blockedAddrs, authority, logger),
 		tfmk:       tfmk,
-		acck:       ak,
+		ak:         ak,
 	}
 	return keeper
 }
 
-func (k *Keeper) RegisterKeepers(ak alliancekeeper.Keeper, sk banktypes.StakingKeeper) {
+func (k *Keeper) RegisterKeepers(ak accountkeeper.AccountKeeper, sk banktypes.StakingKeeper) {
 	k.ak = ak
 	k.sk = sk
 }

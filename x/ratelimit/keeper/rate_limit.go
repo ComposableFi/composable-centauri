@@ -7,7 +7,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -342,7 +343,7 @@ func (k Keeper) GetAllPendingSendPackets(ctx sdk.Context) []string {
 func (k Keeper) RemoveAllChannelPendingSendPackets(ctx sdk.Context, channelID string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.PendingSendPacketPrefix)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(channelID))
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefix(channelID))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
