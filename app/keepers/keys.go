@@ -1,33 +1,31 @@
 package keepers
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	circuittypes "cosmossdk.io/x/circuit/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	// bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
+	evidencetypes "cosmossdk.io/x/evidence/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	"cosmossdk.io/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/x/group"
 
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibchost "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	icqtypes "github.com/strangelove-ventures/async-icq/v7/types"
-
-	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
-	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
+	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
+	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
+	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	ibchookstypes "github.com/notional-labs/composable/v6/x/ibc-hooks/types"
 	ratelimitmoduletypes "github.com/notional-labs/composable/v6/x/ratelimit/types"
@@ -36,12 +34,11 @@ import (
 
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 
 	minttypes "github.com/notional-labs/composable/v6/x/mint/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasm08types "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
+	wasm08types "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 
 	// customstakingtypes "github.com/notional-labs/composable/v6/custom/staking/types"
 	stakingmiddleware "github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
@@ -53,19 +50,27 @@ import (
 func (appKeepers *AppKeepers) GenerateKeys() {
 	// Define what keys will be used in the cosmos-sdk key/value store.
 	// Cosmos-SDK modules each have a "key" that allows the application to reference what they've stored on the chain.
-	appKeepers.keys = sdk.NewKVStoreKeys(
+	appKeepers.keys = storetypes.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-		evidencetypes.StoreKey, ibctransfertypes.StoreKey, icqtypes.StoreKey, capabilitytypes.StoreKey, consensusparamtypes.StoreKey, wasm08types.StoreKey,
+		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
+		evidencetypes.StoreKey,
+		circuittypes.StoreKey,
+		ibctransfertypes.StoreKey,
+		icqtypes.StoreKey, capabilitytypes.StoreKey,
+		consensusparamtypes.StoreKey, wasm08types.StoreKey,
 		authzkeeper.StoreKey, stakingmiddleware.StoreKey, ibctransfermiddleware.StoreKey,
-		crisistypes.StoreKey, routertypes.StoreKey, transfermiddlewaretypes.StoreKey, group.StoreKey, minttypes.StoreKey, alliancemoduletypes.StoreKey, wasm.StoreKey, ibchookstypes.StoreKey, icahosttypes.StoreKey, ratelimitmoduletypes.StoreKey, txBoundaryTypes.StoreKey,
+		crisistypes.StoreKey, routertypes.StoreKey, transfermiddlewaretypes.StoreKey,
+		group.StoreKey, minttypes.StoreKey, wasmtypes.StoreKey,
+		ibcexported.StoreKey,
+		ibchookstypes.StoreKey, icahosttypes.StoreKey,
+		ratelimitmoduletypes.StoreKey, txBoundaryTypes.StoreKey,
 	)
 
 	// Define transient store keys
-	appKeepers.tkeys = sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
 
 	// MemKeys are for information that is stored only in RAM.
-	appKeepers.memKeys = sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 
 // GetKVStoreKey gets KV Store keys.

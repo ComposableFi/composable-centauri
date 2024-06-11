@@ -1,201 +1,62 @@
 package app
 
 import (
+	"bytes"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"math/rand"
-	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/cosmos/cosmos-sdk/snapshots"
-	"github.com/cosmos/cosmos-sdk/snapshots/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	dbm "github.com/cometbft/cometbft-db"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+
+	"cosmossdk.io/errors"
+	"cosmossdk.io/log"
+	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	helpers "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
+
+	tmtypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/notional-labs/composable/v6/bech32-migration/utils"
-	typesconfig "github.com/notional-labs/composable/v6/cmd/picad/config"
+
 	minttypes "github.com/notional-labs/composable/v6/x/mint/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 )
 
-// DefaultConsensusParams defines the default Tendermint consensus params used in
-// FeeAbs testing.
-var DefaultConsensusParams = &tmproto.ConsensusParams{
-	Block: &tmproto.BlockParams{
-		MaxBytes: 8000000,
-		MaxGas:   1234000000,
-	},
-	Evidence: &tmproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		MaxBytes:        10000,
-	},
-	Validator: &tmproto.ValidatorParams{
-		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeEd25519,
-		},
-	},
-}
-
+// SimAppChainID hardcoded chainID for simulation
 const (
 	SimAppChainID = ""
 )
+const DefaultGas = 1200000
 
-type KeeperTestHelper struct {
-	suite.Suite
-
-	App           *ComposableApp
-	Ctx           sdk.Context // ctx is deliver ctx
-	QueryHelper   *baseapp.QueryServiceTestHelper
-	TestAccs      []sdk.AccAddress
-	StakingHelper *stakinghelper.Helper
-}
-
-func (s *KeeperTestHelper) Setup(_ *testing.T) {
-	t := s.T()
-	s.App = SetupApp(t)
-	s.Ctx = s.App.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "", Time: time.Now().UTC()})
-	s.QueryHelper = &baseapp.QueryServiceTestHelper{
-		GRPCQueryRouter: s.App.GRPCQueryRouter(),
-		Ctx:             s.Ctx,
-	}
-	s.TestAccs = createRandomAccounts(10)
-
-	s.StakingHelper = stakinghelper.NewHelper(s.Suite.T(), s.Ctx, &s.App.StakingKeeper.Keeper)
-	s.StakingHelper.Denom = "stake"
-}
-
-func (s *KeeperTestHelper) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
-	s.Ctx = s.Ctx.WithBlockHeight(upgradeHeight - 1)
-	plan := upgradetypes.Plan{Name: upgradeName, Height: upgradeHeight}
-	err := s.App.UpgradeKeeper.ScheduleUpgrade(s.Ctx, plan)
-	s.Require().NoError(err)
-	_, exists := s.App.UpgradeKeeper.GetUpgradePlan(s.Ctx)
-	s.Require().True(exists)
-
-	// NEW PREFIX: pica
-	sdk.GetConfig().SetBech32PrefixForAccount(utils.NewBech32PrefixAccAddr, utils.NewBech32PrefixAccPub)
-	sdk.GetConfig().SetBech32PrefixForValidator(utils.NewBech32PrefixValAddr, utils.NewBech32PrefixValPub)
-	sdk.GetConfig().SetBech32PrefixForConsensusNode(utils.NewBech32PrefixConsAddr, utils.NewBech32PrefixConsPub)
-
-	s.Ctx = s.Ctx.WithBlockHeight(upgradeHeight)
-	s.Require().NotPanics(func() {
-		beginBlockRequest := abci.RequestBeginBlock{}
-		s.App.BeginBlocker(s.Ctx, beginBlockRequest)
-	})
-}
-
-// SetupValidator sets up a validator and returns the ValAddress.
-func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sdk.ValAddress {
-	valPriv := secp256k1.GenPrivKey()
-	valPub := valPriv.PubKey()
-	valAddr := sdk.ValAddress(valPub.Address())
-	bondDenom := "stake"
-	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
-
-	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
-
-	msg := s.StakingHelper.CreateValidatorMsg(valAddr, valPub, selfBond[0].Amount)
-	res, err := s.StakingHelper.CreateValidatorWithMsg(s.Ctx, msg)
-	s.Require().NoError(err)
-	s.Require().NotNil(res)
-
-	val, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
-	s.Require().True(found)
-
-	val = val.UpdateStatus(bondStatus)
-	s.App.StakingKeeper.SetValidator(s.Ctx, val)
-
-	consAddr, err := val.GetConsAddr()
-	s.Suite.Require().NoError(err)
-
-	signingInfo := slashingtypes.NewValidatorSigningInfo(
-		consAddr,
-		s.Ctx.BlockHeight(),
-		0,
-		time.Unix(0, 0),
-		false,
-		0,
-	)
-	s.App.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
-
-	return valAddr
-}
-
-func (s *KeeperTestHelper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
-	err := banktestutil.FundAccount(s.App.BankKeeper, s.Ctx, acc, amounts)
-	s.Require().NoError(err)
-}
-
-func SetupApp(t *testing.T) *ComposableApp {
-	t.Helper()
-
-	privVal := NewPV()
-	pubKey, err := privVal.GetPubKey()
-	require.NoError(t, err)
-	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-
-	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(typesconfig.BaseCoinUnit, sdk.NewInt(100000000000000000))),
-	}
-
-	app := SetupWithGenesisValSet(t, time.Now(), valSet, []authtypes.GenesisAccount{acc}, balance)
-
-	return app
-}
-
-func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp, GenesisState) {
-	tb.Helper()
-	nodeHome := tb.TempDir()
-	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
-	snapshotDB, err := dbm.NewDB("metadata", dbm.MemDBBackend, snapshotDir)
-	require.NoError(tb, err)
-	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-	require.NoError(tb, err)
-	baseAppOpts := []func(*baseapp.BaseApp){baseapp.SetSnapshot(snapshotStore, types.SnapshotOptions{
-		KeepRecent: 2,
-	})}
-	var wasmOpts []wasm.Option
+func setup(withGenesis bool, chainID string) (*ComposableApp, GenesisState) {
 	db := dbm.NewMemDB()
 	app := NewComposableApp(
 		log.NewNopLogger(),
 		db, nil, true,
-		wasmtypes.EnableAllProposals,
 		map[int64]bool{},
-		nodeHome,
-		invCheckPeriod,
-		MakeEncodingConfig(),
+		DefaultNodeHome,
+		5,
 		EmptyBaseAppOptions{},
-		wasmOpts, baseAppOpts...)
+		baseapp.SetChainID(chainID),
+	)
 	if withGenesis {
 		return app, NewDefaultGenesisState()
 	}
@@ -208,13 +69,13 @@ func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp
 // account. A Nop logger is set in FeeAbs.
 func SetupWithGenesisValSet(
 	t *testing.T,
-	ctxTime time.Time,
 	valSet *tmtypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
+	chainID string,
 	balances ...banktypes.Balance,
 ) *ComposableApp {
 	t.Helper()
-	app, genesisState := setup(t, true, 5)
+	app, genesisState := setup(true, chainID)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(authGenesis)
@@ -222,10 +83,10 @@ func SetupWithGenesisValSet(
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.NewInt(1000000000000)
+	bondAmt := sdk.DefaultPowerReduction
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromCmtPubKeyInterface(val.PubKey)
 		require.NoError(t, err)
 		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
@@ -235,66 +96,102 @@ func SetupWithGenesisValSet(
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   sdkmath.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec()),
+			MinSelfDelegation: sdkmath.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), sdkmath.LegacyOneDec()))
 	}
 
 	// set validators and delegations
-	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
-	genesisState[stakingtypes.ModuleName] = app.appCodec.MustMarshalJSON(stakingGenesis)
+	defaultStParams := stakingtypes.DefaultParams()
+	stParams := stakingtypes.NewParams(
+		defaultStParams.UnbondingTime,
+		defaultStParams.MaxValidators,
+		defaultStParams.MaxEntries,
+		defaultStParams.HistoricalEntries,
+		sdk.DefaultBondDenom,
+		defaultStParams.MinCommissionRate,
+	)
 
-	totalSupply := sdk.NewCoins()
-	for _, b := range balances {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
+	// set validators and delegations
+	stakingGenesis := stakingtypes.NewGenesisState(stParams, validators, delegations)
+	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+
+	signingInfos := make([]slashingtypes.SigningInfo, len(valSet.Validators))
+	for i, val := range valSet.Validators {
+		signingInfos[i] = slashingtypes.SigningInfo{
+			Address:              sdk.ConsAddress(val.Address).String(),
+			ValidatorSigningInfo: slashingtypes.ValidatorSigningInfo{},
+		}
 	}
+	slashingGenesis := slashingtypes.NewGenesisState(slashingtypes.DefaultParams(), signingInfos, nil)
+	genesisState[slashingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(slashingGenesis)
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt.MulRaw(int64(len(valSet.Validators))))},
 	})
+
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(distrtypes.ModuleName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1000000))},
+	})
+
+	totalSupply := sdk.NewCoins()
+	for _, b := range balances {
+		// add genesis acc tokens and delegated tokens to total supply
+		totalSupply = totalSupply.Add(b.Coins...)
+	}
+	fmt.Println("totalSupply", totalSupply)
 
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.appCodec.MustMarshalJSON(bankGenesis)
 
+	defaultDistrGenesis := distrtypes.DefaultGenesisState()
+	defaultDistrGenesis.FeePool.CommunityPool = append(defaultDistrGenesis.FeePool.CommunityPool, sdk.NewDecCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1000000)))
+	genesisState[distrtypes.ModuleName] = app.appCodec.MustMarshalJSON(defaultDistrGenesis)
+
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
 
+	consensusParams := helpers.DefaultConsensusParams
+	consensusParams.Block.MaxGas = 100 * helpers.DefaultGenTxGas
+
+	if chainID == "" {
+		chainID = SimAppChainID
+	}
+
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
-		abci.RequestInitChain{
-			Time:            ctxTime,
+	_, err = app.InitChain(
+		&abci.RequestInitChain{
+			Time:            time.Now(),
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: DefaultConsensusParams,
+			ConsensusParams: consensusParams,
+			InitialHeight:   app.LastBlockHeight() + 1,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 
-	// commit genesis changes
-	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height:             app.LastBlockHeight() + 1,
-		AppHash:            app.LastCommitID().Hash,
-		ValidatorsHash:     valSet.Hash(),
+		Hash:               app.LastCommitID().Hash,
 		NextValidatorsHash: valSet.Hash(),
-	}})
+	})
+	if err != nil {
+		panic(err)
+	}
 
-	return app
-}
-
-// SetupWithEmptyStore setup a wasmd app instance with empty DB
-func SetupWithEmptyStore(tb testing.TB) *ComposableApp {
-	tb.Helper()
-	app, _ := setup(tb, false, 0)
 	return app
 }
 
@@ -311,13 +208,136 @@ func createRandomAccounts(accNum int) []sdk.AccAddress {
 	return testAddrs
 }
 
-const DefaultGas = 1200000
+// createIncrementalAccounts is a strategy used by addTestAddrs() in order to generated addresses in ascending order.
+func createIncrementalAccounts(accNum int) []sdk.AccAddress {
+	addresses := make([]sdk.AccAddress, 0, accNum)
+	var buffer bytes.Buffer
 
-// SignAndDeliver signs and delivers a transaction. No simulation occurs as the
-// ibc testing package causes checkState and deliverState to diverge in block time.
-func SignAndDeliver(
+	// start at 100 so we can make up to 999 test addresses with valid test addresses
+	for i := 100; i < (accNum + 100); i++ {
+		numString := strconv.Itoa(i)
+		buffer.WriteString("A58856F0FD53BF058B4909A21AEC019107BA6") // base address string
+
+		buffer.WriteString(numString) // adding on final two digits to make addresses unique
+		res, err := sdk.AccAddressFromHexUnsafe(buffer.String())
+		if err != nil {
+			panic(err)
+		}
+		bech := res.String()
+		addr, err := TestAddr(buffer.String(), bech)
+		if err != nil {
+			panic(err)
+		}
+
+		addresses = append(addresses, addr)
+		buffer.Reset()
+	}
+
+	return addresses
+}
+
+// AddTestAddrsFromPubKeys adds the addresses into the WasmApp providing only the public keys.
+func AddTestAddrsFromPubKeys(app *ComposableApp, ctx sdk.Context, pubKeys []cryptotypes.PubKey, accAmt sdkmath.Int) {
+	denom, err := app.StakingKeeper.BondDenom(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	initCoins := sdk.NewCoins(sdk.NewCoin(denom, accAmt))
+
+	for _, pk := range pubKeys {
+		initAccountWithCoins(app, ctx, sdk.AccAddress(pk.Address()), initCoins)
+	}
+}
+
+// AddTestAddrs constructs and returns accNum amount of accounts with an
+// initial balance of accAmt in random order
+func AddTestAddrs(app *ComposableApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int) []sdk.AccAddress {
+	return addTestAddrs(app, ctx, accNum, accAmt, createRandomAccounts)
+}
+
+// AddTestAddrs constructs and returns accNum amount of accounts with an
+// initial balance of accAmt in random order
+func AddTestAddrsIncremental(app *ComposableApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int) []sdk.AccAddress {
+	return addTestAddrs(app, ctx, accNum, accAmt, createIncrementalAccounts)
+}
+
+func addTestAddrs(app *ComposableApp, ctx sdk.Context, accNum int, accAmt sdkmath.Int, strategy GenerateAccountStrategy) []sdk.AccAddress {
+	testAddrs := strategy(accNum)
+
+	denom, err := app.StakingKeeper.BondDenom(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	initCoins := sdk.NewCoins(sdk.NewCoin(denom, accAmt))
+
+	// fill all the addresses with some coins, set the loose pool tokens simultaneously
+	for _, addr := range testAddrs {
+		initAccountWithCoins(app, ctx, addr, initCoins)
+	}
+
+	return testAddrs
+}
+
+func initAccountWithCoins(app *ComposableApp, ctx sdk.Context, addr sdk.AccAddress, coins sdk.Coins) {
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
+	if err != nil {
+		panic(err)
+	}
+
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, coins)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// ConvertAddrsToValAddrs converts the provided addresses to ValAddress.
+func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.ValAddress {
+	valAddrs := make([]sdk.ValAddress, len(addrs))
+
+	for i, addr := range addrs {
+		valAddrs[i] = sdk.ValAddress(addr)
+	}
+
+	return valAddrs
+}
+
+func TestAddr(addr, bech string) (sdk.AccAddress, error) {
+	res, err := sdk.AccAddressFromHexUnsafe(addr)
+	if err != nil {
+		return nil, err
+	}
+	bechexpected := res.String()
+	if bech != bechexpected {
+		return nil, fmt.Errorf("bech encoding doesn't match reference")
+	}
+
+	bechres, err := sdk.AccAddressFromBech32(bech)
+	if err != nil {
+		return nil, err
+	}
+	if !bytes.Equal(bechres, res) {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// CheckBalance checks the balance of an account.
+func CheckBalance(t *testing.T, app *ComposableApp, addr sdk.AccAddress, balances sdk.Coins) {
+	t.Helper()
+	ctxCheck := app.BaseApp.NewContext(true)
+	require.True(t, balances.Equal(app.BankKeeper.GetAllBalances(ctxCheck, addr)))
+}
+
+// SignCheckDeliver checks a generated signed transaction and simulates a
+// block commitment with the given transaction. A test assertion is made using
+// the parameter 'expPass' against the result. A corresponding result is
+// returned.
+func SignCheckDeliver(
 	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header tmproto.Header, msgs []sdk.Msg,
-	chainID string, accNums, accSeqs []uint64, _, expPass bool, priv ...cryptotypes.PrivKey,
+	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
 	t.Helper()
 	tx, err := helpers.GenSignedMockTx(
@@ -332,9 +352,22 @@ func SignAndDeliver(
 		priv...,
 	)
 	require.NoError(t, err)
+	txBytes, err := txCfg.TxEncoder()(tx)
+	require.Nil(t, err)
+
+	// Must simulate now as CheckTx doesn't run Msgs anymore
+	_, res, err := app.Simulate(txBytes)
+
+	if expSimPass {
+		require.NoError(t, err)
+		require.NotNil(t, res)
+	} else {
+		require.Error(t, err)
+		require.Nil(t, res)
+	}
 
 	// Simulate a sending a transaction and committing a block
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
+	// app.BeginBlock(abci.RequestFinalizeBlock{Header: header})
 	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
 
 	if expPass {
@@ -345,10 +378,101 @@ func SignAndDeliver(
 		require.Nil(t, res)
 	}
 
-	app.EndBlock(abci.RequestEndBlock{})
+	// app.EndBlock(abci.RequestEndBlock{}) TODO: Check begin and end block
 	app.Commit()
 
 	return gInfo, res, err
+}
+
+func SignAndDeliver(
+	tb testing.TB, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
+	chainID string, accNums, accSeqs []uint64, expPass bool, blockTime time.Time, nextValHash []byte, priv ...cryptotypes.PrivKey,
+) (*abci.ResponseFinalizeBlock, error) {
+	tb.Helper()
+	tx, err := helpers.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		txCfg,
+		msgs,
+		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+		helpers.DefaultGenTxGas,
+		chainID,
+		accNums,
+		accSeqs,
+		priv...,
+	)
+	require.NoError(tb, err)
+
+	txBytes, err := txCfg.TxEncoder()(tx)
+	require.NoError(tb, err)
+
+	return app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height:             app.LastBlockHeight() + 1,
+		Time:               blockTime,
+		NextValidatorsHash: nextValHash,
+		Txs:                [][]byte{txBytes},
+	})
+}
+
+// GenSequenceOfTxs generates a set of signed transactions of messages, such
+// that they differ only by having the sequence numbers incremented between
+// every transaction.
+func GenSequenceOfTxs(txGen client.TxConfig, msgs []sdk.Msg, accNums, initSeqNums []uint64, numToGenerate int, priv ...cryptotypes.PrivKey) ([]sdk.Tx, error) {
+	txs := make([]sdk.Tx, numToGenerate)
+	var err error
+	for i := 0; i < numToGenerate; i++ {
+		txs[i], err = helpers.GenSignedMockTx(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
+			txGen,
+			msgs,
+			sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+			helpers.DefaultGenTxGas,
+			"",
+			accNums,
+			initSeqNums,
+			priv...,
+		)
+		if err != nil {
+			break
+		}
+		incrementAllSequenceNumbers(initSeqNums)
+	}
+
+	return txs, err
+}
+
+func incrementAllSequenceNumbers(initSeqNums []uint64) {
+	for i := 0; i < len(initSeqNums); i++ {
+		initSeqNums[i]++
+	}
+}
+
+// CreateTestPubKeys returns a total of numPubKeys public keys in ascending order.
+func CreateTestPubKeys(numPubKeys int) []cryptotypes.PubKey {
+	publicKeys := make([]cryptotypes.PubKey, 0, numPubKeys)
+	var buffer bytes.Buffer
+
+	// start at 10 to avoid changing 1 to 01, 2 to 02, etc
+	for i := 100; i < (numPubKeys + 100); i++ {
+		numString := strconv.Itoa(i)
+		buffer.WriteString("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AF") // base pubkey string
+		buffer.WriteString(numString)                                                       // adding on final two digits to make pubkeys unique
+		publicKeys = append(publicKeys, NewPubKeyFromHex(buffer.String()))
+		buffer.Reset()
+	}
+
+	return publicKeys
+}
+
+// NewPubKeyFromHex returns a PubKey from a hex string.
+func NewPubKeyFromHex(pk string) (res cryptotypes.PubKey) {
+	pkBytes, err := hex.DecodeString(pk)
+	if err != nil {
+		panic(err)
+	}
+	if len(pkBytes) != ed25519.PubKeySize {
+		panic(errors.Wrap(sdkerrors.ErrInvalidPubKey, "invalid pubkey size"))
+	}
+	return &ed25519.PubKey{Key: pkBytes}
 }
 
 // EmptyBaseAppOptions is a stub implementing AppOptions
@@ -371,4 +495,44 @@ func FundAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, addr sdk.AccAddr
 	}
 
 	return bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
+}
+
+// FundModuleAccount is a utility function that funds a module account by
+// minting and sending the coins to the address. This should be used for testing
+// purposes only!
+//
+// Instead of using the mint module account, which has the
+// permission of minting, create a "faucet" account. (@fdymylja)
+func FundModuleAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, recipientMod string, amounts sdk.Coins) error {
+	if err := bankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
+		return err
+	}
+
+	return bankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, recipientMod, amounts)
+}
+
+// SignAndDeliverWithoutCommit signs and delivers a transaction. No commit
+func SignAndDeliverWithoutCommit(t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg, chainID string, accNums, accSeqs []uint64, blockTime time.Time, priv ...cryptotypes.PrivKey) (*abci.ResponseFinalizeBlock, error) {
+	t.Helper() // Mark the function as a test helper
+	tx, err := helpers.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		txCfg,
+		msgs,
+		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+		2*DefaultGas,
+		chainID,
+		accNums,
+		accSeqs,
+		priv...,
+	)
+	require.NoError(t, err)
+
+	bz, err := txCfg.TxEncoder()(tx)
+	require.NoError(t, err)
+
+	return app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: app.LastBlockHeight() + 1,
+		Time:   blockTime,
+		Txs:    [][]byte{bz},
+	})
 }

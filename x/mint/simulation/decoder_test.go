@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 
@@ -20,7 +20,7 @@ func TestDecodeStore(t *testing.T) {
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{
-			{Key: composableminttypes.MinterKey, Value: cdc.MustMarshal(&composableminttypes.Minter{Inflation: sdk.NewDec(13), AnnualProvisions: sdk.NewDec(1)})},
+			{Key: composableminttypes.MinterKey, Value: cdc.MustMarshal(&composableminttypes.Minter{Inflation: sdkmath.LegacyNewDec(13), AnnualProvisions: sdkmath.LegacyNewDec(1)})},
 			{Key: []byte{0x99}, Value: []byte{0x99}},
 		},
 	}
@@ -29,7 +29,7 @@ func TestDecodeStore(t *testing.T) {
 		name        string
 		expectedLog string
 	}{
-		{"Minter", fmt.Sprintf("%v\n%v", composableminttypes.Minter{Inflation: sdk.NewDec(13), AnnualProvisions: sdk.NewDec(1)}, composableminttypes.Minter{Inflation: sdk.NewDec(13), AnnualProvisions: sdk.NewDec(1)})},
+		{"Minter", fmt.Sprintf("%v\n%v", composableminttypes.Minter{Inflation: sdkmath.LegacyNewDec(13), AnnualProvisions: sdkmath.LegacyNewDec(1)}, composableminttypes.Minter{Inflation: sdkmath.LegacyNewDec(13), AnnualProvisions: sdkmath.LegacyNewDec(1)})},
 		{"other", ""},
 	}
 	for i, tt := range tests {

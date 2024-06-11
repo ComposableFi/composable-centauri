@@ -3,18 +3,17 @@ package app
 import (
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	wasm08 "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	ratelimitkeeper "github.com/notional-labs/composable/v6/x/ratelimit/keeper"
 	tfmdKeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
@@ -68,10 +67,6 @@ func (s TestSupport) TransferKeeper() ibctransferkeeper.Keeper {
 
 func (s TestSupport) Wasm08Keeper() wasm08.Keeper {
 	return s.app.Wasm08Keeper
-}
-
-func (s TestSupport) WasmdKeeper() wasm.Keeper {
-	return s.app.WasmKeeper
 }
 
 func (s TestSupport) GetBaseApp() *baseapp.BaseApp {

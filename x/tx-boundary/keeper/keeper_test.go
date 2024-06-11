@@ -2,9 +2,7 @@ package keeper_test
 
 import (
 	"testing"
-	"time"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
@@ -23,7 +21,7 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	suite.app = helpers.SetupComposableAppWithValSet(suite.T())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "centauri-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.BaseApp.NewContext(false)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

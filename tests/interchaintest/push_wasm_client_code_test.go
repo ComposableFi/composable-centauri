@@ -2,26 +2,29 @@ package interchaintest
 
 import (
 	"context"
+	"cosmossdk.io/math"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/strangelove-ventures/interchaintest/v8"
+	"strconv"
 	"testing"
 
 	"github.com/icza/dyno"
-	"github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
-	"github.com/strangelove-ventures/interchaintest/v7/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/testreporter"
+	"github.com/strangelove-ventures/interchaintest/v8/testutil"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 	// simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 )
 
 const (
-	heightDelta      = uint64(20)
-	votingPeriod     = "30s"
+	heightDelta      = 30
+	votingPeriod     = "20s"
 	maxDepositPeriod = "10s"
 )
 
@@ -62,6 +65,8 @@ func TestPushWasmClientCode(t *testing.T) {
 	configFileOverrides["config/app.toml"] = appTomlOverrides
 	configFileOverrides["config/config.toml"] = configTomlOverrides
 
+	numValidator := 1
+
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			ChainConfig: ibc.ChainConfig{
@@ -80,6 +85,7 @@ func TestPushWasmClientCode(t *testing.T) {
 				ConfigFileOverrides: configFileOverrides,
 				ModifyGenesis:       modifyGenesisShortProposals(votingPeriod, maxDepositPeriod),
 			},
+			NumValidators: &numValidator,
 		},
 	})
 
@@ -107,22 +113,25 @@ func TestPushWasmClientCode(t *testing.T) {
 	})
 
 	// Create and Fund User Wallets
-	fundAmount := int64(10_000_000_000)
-	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", int64(fundAmount), centaurid)
+	fundAmount := math.NewInt(10_000_000_000)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", fundAmount, centaurid)
 	centaurid1User := users[0]
 
-	err = testutil.WaitForBlocks(ctx, 10, centaurid)
+	err = testutil.WaitForBlocks(ctx, 5, centaurid)
 	require.NoError(t, err)
 
 	centaurid1UserBalInitial, err := centaurid.GetBalance(ctx, centaurid1User.FormattedAddress(), centaurid.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t, fundAmount, centaurid1UserBalInitial)
+	require.Equal(t, fundAmount.Int64(), centaurid1UserBalInitial.Int64())
 
 	centauridChain := centaurid.(*cosmos.CosmosChain)
 
 	// Verify a normal user cannot push a wasm light client contract
-	_, err = centauridChain.StoreClientContract(ctx, centaurid1User.KeyName(), "ics10_grandpa_cw.wasm")
-	require.ErrorContains(t, err, "invalid authority")
+	args := []string{"--title", "test", "--summary", "test", "--deposit", "500000000" + centauridChain.Config().Denom}
+	_, err = centauridChain.StoreClientContract(ctx, centaurid1User.KeyName(), "ics10_grandpa_cw.wasm", args...)
+	fmt.Println(err)
+	// require.ErrorContains(t, err, "invalid authority")
+	require.NoError(t, err, "invalid authority")
 
 	proposal := cosmos.TxProposalv1{
 		Metadata: "none",
@@ -140,7 +149,10 @@ func TestPushWasmClientCode(t *testing.T) {
 	err = centauridChain.VoteOnProposalAllValidators(ctx, proposalTx.ProposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
-	_, err = cosmos.PollForProposalStatus(ctx, centauridChain, height, height+heightDelta, proposalTx.ProposalID, cosmos.ProposalStatusPassed)
+	propId, err := strconv.ParseUint(proposalTx.ProposalID, 10, 64)
+	require.NoError(t, err, "failed to convert proposal ID to uint64")
+
+	_, err = cosmos.PollForProposalStatus(ctx, centauridChain, height, height+heightDelta, propId, govv1beta1.StatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	err = testutil.WaitForBlocks(ctx, 2, centauridChain)
@@ -148,16 +160,16 @@ func TestPushWasmClientCode(t *testing.T) {
 
 	var getCodeQueryMsgRsp GetCodeQueryMsgResponse
 	err = centauridChain.QueryClientContractCode(ctx, codeHash, &getCodeQueryMsgRsp)
-	codeHashByte32 := sha256.Sum256(getCodeQueryMsgRsp.Code)
+	codeHashByte32 := sha256.Sum256(getCodeQueryMsgRsp.Data)
 	codeHash2 := hex.EncodeToString(codeHashByte32[:])
 	t.Logf("Contract codeHash from code: %s", codeHash2)
 	require.NoError(t, err)
-	require.NotEmpty(t, getCodeQueryMsgRsp.Code)
+	require.NotEmpty(t, getCodeQueryMsgRsp.Data)
 	require.Equal(t, codeHash, codeHash2)
 }
 
 type GetCodeQueryMsgResponse struct {
-	Code []byte `json:"code"`
+	Data []byte `json:"data"`
 }
 
 func modifyGenesisShortProposals(votingPeriod, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {

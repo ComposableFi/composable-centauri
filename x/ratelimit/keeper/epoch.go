@@ -8,6 +8,7 @@ import (
 
 	"github.com/notional-labs/composable/v6/x/ratelimit/types"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -74,7 +75,7 @@ func (k Keeper) DeleteEpochInfo(ctx sdk.Context, identifier string) {
 func (k Keeper) IterateEpochInfo(ctx sdk.Context, fn func(index int64, epochInfo types.EpochInfo) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.EpochKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(store, types.EpochKeyPrefix)
 	defer iterator.Close()
 
 	i := int64(0)

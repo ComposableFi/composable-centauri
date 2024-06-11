@@ -1,9 +1,13 @@
 package interchaintest
 
 import (
+	sdkmath "cosmossdk.io/math"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"os"
 
-	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 )
 
 var (
@@ -18,21 +22,30 @@ var (
 		UidGid:     "1025:1025",
 	}
 
-	centauriConfig = ibc.ChainConfig{
+	CentauriConfig = ibc.ChainConfig{
 		Type:                "cosmos",
 		Name:                "centauri",
 		ChainID:             "centauri-2",
 		Images:              []ibc.DockerImage{CentauriImage},
-		Bin:                 "centaurid",
-		Bech32Prefix:        "centauri",
+		Bin:                 "picad",
+		Bech32Prefix:        "pica",
 		Denom:               "stake",
 		CoinType:            "118",
 		GasPrices:           "0.0stake",
 		GasAdjustment:       1.1,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,
+		EncodingConfig:      composableEncoding(),
 		ModifyGenesis:       nil,
 		ConfigFileOverrides: nil,
+	}
+
+	genesisWalletAmount = sdkmath.NewInt(10_000_000)
+
+	DefaultRelayer = ibc.DockerImage{
+		Repository: "ghcr.io/cosmos/relayer",
+		Version:    "main",
+		UidGid:     "1025:1025",
 	}
 )
 
@@ -45,7 +58,15 @@ func GetDockerImageInfo() (repo, version string) {
 	if !found {
 		// make local-image
 		repo = "centauri"
-		branchVersion = "local"
+		branchVersion = "debug"
 	}
 	return repo, branchVersion
+}
+
+func composableEncoding() *testutil.TestEncodingConfig {
+	cfg := cosmos.DefaultEncoding()
+
+	// register custom types
+	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	return &cfg
 }

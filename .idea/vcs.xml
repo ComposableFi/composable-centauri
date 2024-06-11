@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_build/gocache/github.com/hashicorp/go-getter@v1.7.1/testdata/basic-hg" vcs="hg4idea" />
+    <mapping directory="$PROJECT_DIR$/_build/gocache/github.com/hashicorp/go-getter@v1.7.3/testdata/basic-hg" vcs="hg4idea" />
+  </component>
+</project>

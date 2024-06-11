@@ -1,12 +1,12 @@
 package upgrades
 
 import (
+	store "cosmossdk.io/store/types"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	types "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/notional-labs/composable/v6/app/keepers"
 )
@@ -14,8 +14,8 @@ import (
 // BaseAppParamManager defines an interrace that BaseApp is expected to fullfil
 // that allows upgrade handlers to modify BaseApp parameters.
 type BaseAppParamManager interface {
-	GetConsensusParams(ctx sdk.Context) *types.ConsensusParams
-	StoreConsensusParams(ctx sdk.Context, cp *types.ConsensusParams)
+	GetConsensusParams(ctx sdk.Context) types.ConsensusParams
+	StoreConsensusParams(ctx sdk.Context, cp types.ConsensusParams) error
 }
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal

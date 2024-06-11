@@ -1,13 +1,15 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/math"
 	abcicometbft "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/core/address"
+	storetypes "cosmossdk.io/core/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -24,10 +26,10 @@ type Keeper struct {
 	authority         string
 	mintKeeper        mintkeeper.Keeper
 	distrKeeper       distkeeper.Keeper
-	authKeeper        minttypes.AccountKeeper
+	accountKeeper     types.AccountKeeper
 }
 
-func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicometbft.ValidatorUpdate {
+func (k Keeper) BlockValidatorUpdates(ctx context.Context) ([]abcicometbft.ValidatorUpdate, error) {
 	// Calculate validator set changes.
 	//
 	// NOTE: ApplyAndReturnValidatorSetUpdates has to come before
@@ -37,7 +39,9 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 	// unbonded after the Endblocker (go from Bonded -> Unbonding during
 	// ApplyAndReturnValidatorSetUpdates and then Unbonding -> Unbonded during
 	// UnbondAllMatureValidatorQueue).
-	params := k.Stakingmiddleware.GetParams(ctx)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	params := k.Stakingmiddleware.GetParams(sdkCtx)
+	height := sdkCtx.BlockHeight()
 	shouldExecuteBatch := (height % int64(params.BlocksPerEpoch)) == 0
 	var validatorUpdates []abcicometbft.ValidatorUpdate
 	if shouldExecuteBatch {
@@ -50,14 +54,20 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 	}
 
 	// unbond all mature validators from the unbonding queue
-	k.UnbondAllMatureValidators(ctx)
+	err := k.UnbondAllMatureValidators(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Remove all mature unbonding delegations from the ubd queue.
-	matureUnbonds := k.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+	matureUnbonds, err := k.DequeueAllMatureUBDQueue(ctx, sdkCtx.BlockHeader().Time)
+	if err != nil {
+		return nil, err
+	}
 	for _, dvPair := range matureUnbonds {
 		addr, err := sdk.ValAddressFromBech32(dvPair.ValidatorAddress)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		delegatorAddress := sdk.MustAccAddressFromBech32(dvPair.DelegatorAddress)
 
@@ -66,7 +76,7 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 			continue
 		}
 
-		ctx.EventManager().EmitEvent(
+		sdkCtx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeCompleteUnbonding,
 				sdk.NewAttribute(sdk.AttributeKeyAmount, balances.String()),
@@ -77,15 +87,18 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 	}
 
 	// Remove all mature redelegations from the red queue.
-	matureRedelegations := k.DequeueAllMatureRedelegationQueue(ctx, ctx.BlockHeader().Time)
+	matureRedelegations, err := k.DequeueAllMatureRedelegationQueue(ctx, sdkCtx.BlockHeader().Time)
+	if err != nil {
+		return nil, err
+	}
 	for _, dvvTriplet := range matureRedelegations {
 		valSrcAddr, err := sdk.ValAddressFromBech32(dvvTriplet.ValidatorSrcAddress)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		valDstAddr, err := sdk.ValAddressFromBech32(dvvTriplet.ValidatorDstAddress)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		delegatorAddress := sdk.MustAccAddressFromBech32(dvvTriplet.DelegatorAddress)
 
@@ -99,7 +112,7 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 			continue
 		}
 
-		ctx.EventManager().EmitEvent(
+		sdkCtx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeCompleteRedelegation,
 				sdk.NewAttribute(sdk.AttributeKeyAmount, balances.String()),
@@ -110,25 +123,26 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 		)
 	}
 
-	return validatorUpdates
+	return validatorUpdates, nil
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	key storetypes.StoreKey,
+	storeService storetypes.KVStoreService,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	authority string,
 	stakingmiddleware *stakingmiddleware.Keeper,
+	validatorAddressCodec, consensusAddressCodec address.Codec,
 ) *Keeper {
 	keeper := Keeper{
-		Keeper:            *stakingkeeper.NewKeeper(cdc, key, ak, bk, authority),
+		Keeper:            *stakingkeeper.NewKeeper(cdc, storeService, ak, bk, authority, validatorAddressCodec, consensusAddressCodec),
 		authority:         authority,
 		Stakingmiddleware: stakingmiddleware,
 		cdc:               cdc,
 		mintKeeper:        mintkeeper.Keeper{},
 		distrKeeper:       distkeeper.Keeper{},
-		authKeeper:        ak,
+		accountKeeper:     ak,
 	}
 	return &keeper
 }
@@ -139,20 +153,31 @@ func (k *Keeper) RegisterKeepers(dk distkeeper.Keeper, mk mintkeeper.Keeper) {
 }
 
 // SlashWithInfractionReason send coins to community pool
-func (k Keeper) SlashWithInfractionReason(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight, power int64, slashFactor sdk.Dec, _ types.Infraction) math.Int {
+func (k Keeper) SlashWithInfractionReason(ctx context.Context, consAddr sdk.ConsAddress, infractionHeight, power int64, slashFactor math.LegacyDec, _ types.Infraction) (math.Int, error) {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
 	// keep slashing logic the same
-	amountBurned := k.Slash(ctx, consAddr, infractionHeight, power, slashFactor)
+	amountBurned, err := k.Slash(ctx, consAddr, infractionHeight, power, slashFactor)
+	if err != nil {
+		return math.ZeroInt(), err
+	}
+
 	// after usual slashing and burning is done, mint burned coinds into community pool
-	coins := sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), amountBurned))
-	err := k.mintKeeper.MintCoins(ctx, coins)
+	denom, err := k.BondDenom(ctx)
+	if err != nil {
+		return math.ZeroInt(), err
+	}
+
+	coins := sdk.NewCoins(sdk.NewCoin(denom, amountBurned))
+	err = k.mintKeeper.MintCoins(sdkCtx, coins)
 	if err != nil {
 		k.Logger(ctx).Error("Failed to mint slashed coins: ", amountBurned)
 	} else {
-		err = k.distrKeeper.FundCommunityPool(ctx, coins, k.authKeeper.GetModuleAddress(minttypes.ModuleName))
+		err = k.distrKeeper.FundCommunityPool(ctx, coins, k.accountKeeper.GetModuleAddress(minttypes.ModuleName))
 		if err != nil {
 			k.Logger(ctx).Error(fmt.Sprintf("Failed to fund community pool. Tokens minted to the staking module account: %d. ", amountBurned))
 		} else {
-			ctx.EventManager().EmitEvent(
+			sdkCtx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					minttypes.EventTypeMintSlashed,
 					sdk.NewAttribute(sdk.AttributeKeyAmount, amountBurned.String()),
@@ -160,5 +185,5 @@ func (k Keeper) SlashWithInfractionReason(ctx sdk.Context, consAddr sdk.ConsAddr
 			)
 		}
 	}
-	return amountBurned
+	return amountBurned, nil
 }

@@ -3,8 +3,8 @@ package types
 import (
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 )
 
 var _ sdk.Msg = &MsgAddParachainIBCTokenInfo{}

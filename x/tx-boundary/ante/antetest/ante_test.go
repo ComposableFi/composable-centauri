@@ -3,6 +3,8 @@ package antetest
 import (
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
+
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -21,7 +23,7 @@ func TestAnteTestSuite(t *testing.T) {
 
 func (s *AnteTestSuite) TestStakingAnteBasic() {
 	_, _, addr1 := testdata.KeyTestPubAddr()
-	delegateMsg := stakingtypes.NewMsgDelegate(s.delegator, s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000)))
+	delegateMsg := stakingtypes.NewMsgDelegate(s.delegator.String(), s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000)))
 	msgDelegateAny, err := cdctypes.NewAnyWithValue(delegateMsg)
 	require.NoError(s.T(), err)
 
@@ -36,7 +38,7 @@ func (s *AnteTestSuite) TestStakingAnteBasic() {
 	}{
 		{
 			desc:  "Case delegate success",
-			txMsg: stakingtypes.NewMsgDelegate(s.delegator, s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgDelegate(s.delegator.String(), s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				return nil
 			},
@@ -44,7 +46,7 @@ func (s *AnteTestSuite) TestStakingAnteBasic() {
 		},
 		{
 			desc:  "Case redelegate success",
-			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator, s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator.String(), s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				return nil
 			},
@@ -60,7 +62,7 @@ func (s *AnteTestSuite) TestStakingAnteBasic() {
 		},
 		{
 			desc:  "Case delegate failed",
-			txMsg: stakingtypes.NewMsgDelegate(s.delegator, s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgDelegate(s.delegator.String(), s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				s.app.TxBoundaryKeepper.SetLimitPerAddr(s.ctx, addr2, types.LimitPerAddr{
 					DelegateCount:     5,
@@ -73,7 +75,7 @@ func (s *AnteTestSuite) TestStakingAnteBasic() {
 		},
 		{
 			desc:  "Case redelegate failed",
-			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator, s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator.String(), s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				s.app.TxBoundaryKeepper.SetLimitPerAddr(s.ctx, addr2, types.LimitPerAddr{
 					DelegateCount:     5,
@@ -122,7 +124,7 @@ func (s *AnteTestSuite) TestStakingAnteBasic() {
 
 func (s *AnteTestSuite) TestStakingAnteUpdateLimit() {
 	_, _, addr1 := testdata.KeyTestPubAddr()
-	delegateMsg := stakingtypes.NewMsgDelegate(s.delegator, s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000)))
+	delegateMsg := stakingtypes.NewMsgDelegate(s.delegator.String(), s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000)))
 
 	msgDelegateAny, err := cdctypes.NewAnyWithValue(delegateMsg)
 	require.NoError(s.T(), err)
@@ -139,7 +141,7 @@ func (s *AnteTestSuite) TestStakingAnteUpdateLimit() {
 	}{
 		{
 			desc:  "Case delegate success update limit",
-			txMsg: stakingtypes.NewMsgDelegate(s.delegator, s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgDelegate(s.delegator.String(), s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				s.app.TxBoundaryKeepper.SetLimitPerAddr(s.ctx, addr2, types.LimitPerAddr{
 					DelegateCount:     5,
@@ -153,7 +155,7 @@ func (s *AnteTestSuite) TestStakingAnteUpdateLimit() {
 		},
 		{
 			desc:  "Case redelegate success update limit",
-			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator, s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator.String(), s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				s.app.TxBoundaryKeepper.SetLimitPerAddr(s.ctx, addr2, types.LimitPerAddr{
 					DelegateCount:     5,
@@ -181,7 +183,7 @@ func (s *AnteTestSuite) TestStakingAnteUpdateLimit() {
 		},
 		{
 			desc:  "Case delegate fail update limit",
-			txMsg: stakingtypes.NewMsgDelegate(s.delegator, s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgDelegate(s.delegator.String(), s.validators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				s.app.TxBoundaryKeepper.SetLimitPerAddr(s.ctx, addr2, types.LimitPerAddr{
 					DelegateCount:     5,
@@ -195,7 +197,7 @@ func (s *AnteTestSuite) TestStakingAnteUpdateLimit() {
 		},
 		{
 			desc:  "Case redelegate fail update limit",
-			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator, s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10000000))),
+			txMsg: stakingtypes.NewMsgBeginRedelegate(s.delegator.String(), s.validators[0].GetOperator(), s.newvalidators[0].GetOperator(), sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(10000000))),
 			malleate: func() error {
 				s.app.TxBoundaryKeepper.SetLimitPerAddr(s.ctx, addr2, types.LimitPerAddr{
 					DelegateCount:     5,

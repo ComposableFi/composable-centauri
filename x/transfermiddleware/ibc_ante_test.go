@@ -5,11 +5,12 @@ import (
 	"os"
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	wasmkeeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
-	wasmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/types"
+	wasmkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	wasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/stretchr/testify/suite"
 
 	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
@@ -27,7 +28,7 @@ type TransferTestSuite struct {
 	chainB *customibctesting.TestChain
 
 	ctx      sdk.Context
-	store    sdk.KVStore
+	store    storetypes.KVStore
 	testData map[string]string
 
 	wasmKeeper wasmkeeper.Keeper
@@ -35,8 +36,8 @@ type TransferTestSuite struct {
 
 func (suite *TransferTestSuite) SetupTest() {
 	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 2)
-	suite.chainA = suite.coordinator.GetChain(customibctesting.GetChainID(0))
-	suite.chainB = suite.coordinator.GetChain(customibctesting.GetChainID(1))
+	suite.chainA = suite.coordinator.GetChain(customibctesting.GetChainID(1))
+	suite.chainB = suite.coordinator.GetChain(customibctesting.GetChainID(2))
 
 	suite.chainB.SetWasm(true)
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
@@ -47,21 +48,21 @@ func (suite *TransferTestSuite) SetupTest() {
 	err = json.Unmarshal(data, &suite.testData)
 	suite.Require().NoError(err)
 
-	suite.ctx = suite.chainB.GetContext().WithBlockGasMeter(sdk.NewInfiniteGasMeter())
+	suite.ctx = suite.chainB.GetContext().WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 	suite.store = suite.chainB.App.GetIBCKeeper().ClientKeeper.ClientStore(suite.ctx, "08-wasm-0")
 
 	wasmContract, err := os.ReadFile("../../contracts/ics10_grandpa_cw.wasm")
 	suite.Require().NoError(err)
 
-	suite.wasmKeeper = suite.chainB.GetTestSupport().Wasm08Keeper()
+	suite.wasmKeeper = suite.chainB.Wasm08Keeper()
 
-	msg := wasmtypes.NewMsgPushNewWasmCode(govAuthorityAddress, wasmContract)
+	msg := wasmtypes.NewMsgStoreCode(govAuthorityAddress, wasmContract)
 
-	response, err := suite.wasmKeeper.PushNewWasmCode(suite.ctx, msg)
+	response, err := suite.wasmKeeper.StoreCode(suite.ctx, msg)
 
 	suite.Require().NoError(err)
-	suite.Require().NotNil(response.CodeId)
-	suite.coordinator.CodeID = response.CodeId
+	suite.Require().NotNil(response.Checksum)
+	suite.coordinator.CodeID = response.Checksum
 }
 
 func TestTransferTestSuite(t *testing.T) {
@@ -98,7 +99,7 @@ func (suite *TransferTestSuite) TestIbcAnteWithTenderMintUpdateClient() {
 	// ensure counterparty has committed state
 	suite.chainA.Coordinator.CommitBlock(suite.chainA)
 
-	header := suite.chainA.CurrentTMClientHeader()
+	header, _ := suite.chainA.ConstructUpdateTMClientHeader(path.EndpointA.Chain, path.EndpointB.ClientID)
 
 	msg, err := clienttypes.NewMsgUpdateClient(
 		path.EndpointB.ClientID, header,

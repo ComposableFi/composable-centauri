@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/stretchr/testify/suite"
 
 	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
@@ -16,7 +17,7 @@ import (
 // TODO: use testsuite here.
 func (suite *TransferMiddlewareTestSuite) TestOnrecvPacket() {
 	var (
-		transferAmount = sdk.NewInt(1000000000)
+		transferAmount = sdkmath.NewInt(1000000000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		coinToSendToB = sdk.NewCoin(sdk.DefaultBondDenom, transferAmount)
 		timeoutHeight = clienttypes.NewHeight(1, 110)
@@ -97,7 +98,7 @@ func (suite *TransferMiddlewareTestSuite) TestOnrecvPacket() {
 // TODO: use testsuite here.
 func (suite *TransferMiddlewareTestSuite) TestSendPacket() {
 	var (
-		transferAmount = sdk.NewInt(1000000000)
+		transferAmount = sdkmath.NewInt(1000000000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		nativeTokenSendOnChainA    = sdk.NewCoin(sdk.DefaultBondDenom, transferAmount)
 		nativeTokenReceiveOnChainB = sdk.NewCoin("ppica", transferAmount)
@@ -180,7 +181,7 @@ func (suite *TransferMiddlewareTestSuite) TestSendPacket() {
 // TODO: use testsuite here.
 func (suite *TransferMiddlewareTestSuite) TestTimeOutPacket() {
 	var (
-		transferAmount = sdk.NewInt(1000000000)
+		transferAmount = sdkmath.NewInt(1000000000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		nativeToken   = sdk.NewCoin(sdk.DefaultBondDenom, transferAmount)
 		timeoutHeight = clienttypes.NewHeight(1, 110)
@@ -262,8 +263,8 @@ func (suite *TransferMiddlewareTestSuite) TestMintAndEscrowProcessWhenLaunchChai
 		timeoutHeight                    = clienttypes.NewHeight(1, 110)
 		path                             *customibctesting.Path
 		expDenom                         = "ibc/C053D637CCA2A2BA030E2C5EE1B28A16F71CCB0E45E8BE52766DC1B241B77878"
-		transferAmountFromChainBToChainA = sdk.NewInt(100000000000000)
-		transferAmountFromChainAToChainB = sdk.NewInt(1000000000000)
+		transferAmountFromChainBToChainA = sdkmath.NewInt(100000000000000)
+		transferAmountFromChainAToChainB = sdkmath.NewInt(1000000000000)
 
 		// pathBtoC      = NewTransferPath(suite.chainB, suite.chainC)
 	)

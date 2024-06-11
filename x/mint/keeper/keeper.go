@@ -3,11 +3,11 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"github.com/cometbft/cometbft/libs/log"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/notional-labs/composable/v6/x/mint/types"
@@ -128,13 +128,13 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 
 // StakingTokenSupply implements an alias call to the underlying staking keeper's
 // StakingTokenSupply to be used in BeginBlocker.
-func (k Keeper) StakingTokenSupply(ctx sdk.Context) math.Int {
+func (k Keeper) StakingTokenSupply(ctx sdk.Context) (math.Int, error) {
 	return k.stakingKeeper.StakingTokenSupply(ctx)
 }
 
 // BondedRatio implements an alias call to the underlying staking keeper's
 // BondedRatio to be used in BeginBlocker.
-func (k Keeper) BondedRatio(ctx sdk.Context) math.LegacyDec {
+func (k Keeper) BondedRatio(ctx sdk.Context) (math.LegacyDec, error) {
 	return k.stakingKeeper.BondedRatio(ctx)
 }
 

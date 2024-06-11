@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
 )
@@ -8,6 +10,7 @@ import (
 // InitGenesis new stake middleware genesis
 func (keeper Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	if err := keeper.SetParams(ctx, data.Params); err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 }

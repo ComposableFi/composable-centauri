@@ -29,19 +29,19 @@ message MsgAddRateLimit {
   string channel_id = 3 [ (gogoproto.customname) = "ChannelID" ];
   // Max rate limit send
   string max_percent_send = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   // Max rate limit receive
   string max_percent_recv = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   // Duration of rate limit. The rate limit will reset when reach the duration.
   uint64 duration_hours = 6;
   // Min amount of rate limit (allow transfer max(min-amout, rate-limit))
   string min_rate_limit_amount = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 }
@@ -57,15 +57,15 @@ message MsgUpdateRateLimit {
   string denom = 2;
   string channel_id = 3 [ (gogoproto.customname) = "ChannelID" ];
   string max_percent_send = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   string max_percent_recv = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   string min_rate_limit_amount = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   uint64 duration_hours = 7;
