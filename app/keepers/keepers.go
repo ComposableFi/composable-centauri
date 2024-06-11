@@ -79,7 +79,6 @@ import (
 
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 
-	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	pfmkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
 	pfmtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 
@@ -403,6 +402,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		0,
 		pfmkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		pfmkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+		&appKeepers.IbcTransferMiddlewareKeeper,
+		&appKeepers.BankKeeper,
 	)
 	ratelimitMiddlewareStack := ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, ibcMiddlewareStack)
 	hooksTransferMiddleware := ibc_hooks.NewIBCMiddleware(ratelimitMiddlewareStack, &appKeepers.HooksICS4Wrapper)

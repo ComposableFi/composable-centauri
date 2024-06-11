@@ -6,17 +6,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/armon/go-metrics"
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/hashicorp/go-metrics"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
-	router "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward"
-	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
-	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	router "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
+	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
+	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 	ibctransfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
 )
@@ -141,7 +144,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		)
 	}
 
-	amountInt, ok := sdk.NewIntFromString(data.Amount)
+	amountInt, ok := sdkmath.NewIntFromString(data.Amount)
 	if !ok {
 		logger.Error("packetForwardMiddleware OnRecvPacket error parsing amount for forward", "amount", data.Amount)
 		return newErrorAcknowledgement(fmt.Errorf("error parsing amount for forward: %s", data.Amount))
@@ -245,7 +248,7 @@ func getBoolFromAny(value any) bool {
 	return boolVal
 }
 
-func getReceiver(channel string, originalSender string) (string, error) {
+func getReceiver(channel, originalSender string) (string, error) {
 	senderStr := fmt.Sprintf("%s/%s", channel, originalSender)
 	senderHash32 := address.Hash(types.ModuleName, []byte(senderStr))
 	sender := sdk.AccAddress(senderHash32[:20])
