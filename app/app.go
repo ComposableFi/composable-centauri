@@ -2,11 +2,12 @@ package app
 
 import (
 	"fmt"
-	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"io"
 	"os"
 	"path/filepath"
+
+	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
@@ -333,9 +334,8 @@ func NewComposableApp(
 	)
 
 	// optional: enable sign mode textual by overwriting the default tx config (after setting the bank keeper)
-	enabledSignModes := append(authtx.DefaultSignModes, sigtypes.SignMode_SIGN_MODE_TEXTUAL)
 	txConfigOpts := authtx.ConfigOptions{
-		EnabledSignModes:           enabledSignModes,
+		EnabledSignModes:           append(authtx.DefaultSignModes, sigtypes.SignMode_SIGN_MODE_TEXTUAL),
 		TextualCoinMetadataQueryFn: txmodule.NewBankKeeperCoinMetadataQueryFn(app.BankKeeper),
 	}
 	txConfig, err = authtx.NewTxConfigWithOptions(
