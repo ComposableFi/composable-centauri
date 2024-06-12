@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -95,6 +96,8 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 			if err != nil {
 				return err
 			}
+
+			fmt.Println("hoank123", initClientCtx.Offline)
 
 			// This needs to go after ReadFromClientConfig, as that function
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL. This sign mode
