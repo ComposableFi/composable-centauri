@@ -52,8 +52,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
 	"github.com/notional-labs/composable/v6/app/keepers"
-	"github.com/notional-labs/composable/v6/app/upgrades/v7_0_1"
-
 	// bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"cosmossdk.io/x/evidence"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -133,6 +131,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	upgrades "github.com/notional-labs/composable/v6/app/upgrades"
+	"github.com/notional-labs/composable/v6/app/upgrades/v7_0_3"
 	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 	stakingmiddlewaretypes "github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
 )
@@ -152,7 +151,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v7_0_1.Upgrade}
+	Upgrades = []upgrades.Upgrade{v7_0_3.Upgrade}
 	Forks    = []upgrades.Fork{}
 )
 
