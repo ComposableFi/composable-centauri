@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"io"
 	"os"
 	"path/filepath"
@@ -330,6 +332,21 @@ func NewComposableApp(
 		appOpts,
 	)
 
+	// optional: enable sign mode textual by overwriting the default tx config (after setting the bank keeper)
+	enabledSignModes := append(authtx.DefaultSignModes, sigtypes.SignMode_SIGN_MODE_TEXTUAL)
+	txConfigOpts := authtx.ConfigOptions{
+		EnabledSignModes:           enabledSignModes,
+		TextualCoinMetadataQueryFn: txmodule.NewBankKeeperCoinMetadataQueryFn(app.BankKeeper),
+	}
+	txConfig, err = authtx.NewTxConfigWithOptions(
+		appCodec,
+		txConfigOpts,
+	)
+	if err != nil {
+		panic(err)
+	}
+	app.txConfig = txConfig
+
 	// custompfm.NewIBCMiddleware()
 	// transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferModule := customibctransfer.NewAppModule(appCodec, app.TransferKeeper, app.BankKeeper)
@@ -446,7 +463,6 @@ func NewComposableApp(
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
-		slashingtypes.ModuleName,
 		vestingtypes.ModuleName,
 		ibcexported.ModuleName,
 		genutiltypes.ModuleName,

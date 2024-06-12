@@ -64,7 +64,9 @@ update_test_genesis '.app_state["stakingmiddleware"]["params"]["blocks_per_epoch
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
-update_test_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="6"'
+update_test_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="4"'
+update_test_genesis '.app_state["slashing"]["params"]["downtime_jail_duration"]="5s"'
+
 
 # Collect genesis tx
 $BINARY collect-gentxs --home $HOME_DIR
