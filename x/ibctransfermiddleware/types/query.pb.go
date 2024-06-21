@@ -112,9 +112,112 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+type QueryFeeConfigByChannelAndDenomRequest struct {
+	Channel string `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
+	Denom   string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+}
+
+func (m *QueryFeeConfigByChannelAndDenomRequest) Reset() {
+	*m = QueryFeeConfigByChannelAndDenomRequest{}
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeConfigByChannelAndDenomRequest) ProtoMessage()    {}
+func (*QueryFeeConfigByChannelAndDenomRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_488b65e78926913a, []int{2}
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryFeeConfigByChannelAndDenomRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeConfigByChannelAndDenomRequest.Merge(m, src)
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeConfigByChannelAndDenomRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryFeeConfigByChannelAndDenomRequest proto.InternalMessageInfo
+
+func (m *QueryFeeConfigByChannelAndDenomRequest) GetChannel() string {
+	if m != nil {
+		return m.Channel
+	}
+	return ""
+}
+
+func (m *QueryFeeConfigByChannelAndDenomRequest) GetDenom() string {
+	if m != nil {
+		return m.Denom
+	}
+	return ""
+}
+
+type QueryFeeConfigByChannelAndDenomResponse struct {
+	// params defines the parameters of the module.
+	Fees CoinItem `protobuf:"bytes,1,opt,name=fees,proto3" json:"fees"`
+}
+
+func (m *QueryFeeConfigByChannelAndDenomResponse) Reset() {
+	*m = QueryFeeConfigByChannelAndDenomResponse{}
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeConfigByChannelAndDenomResponse) ProtoMessage()    {}
+func (*QueryFeeConfigByChannelAndDenomResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_488b65e78926913a, []int{3}
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryFeeConfigByChannelAndDenomResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeConfigByChannelAndDenomResponse.Merge(m, src)
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeConfigByChannelAndDenomResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryFeeConfigByChannelAndDenomResponse proto.InternalMessageInfo
+
+func (m *QueryFeeConfigByChannelAndDenomResponse) GetFees() CoinItem {
+	if m != nil {
+		return m.Fees
+	}
+	return CoinItem{}
+}
+
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "composable.ibctransfermiddleware.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "composable.ibctransfermiddleware.v1beta1.QueryParamsResponse")
+	proto.RegisterType((*QueryFeeConfigByChannelAndDenomRequest)(nil), "composable.ibctransfermiddleware.v1beta1.QueryFeeConfigByChannelAndDenomRequest")
+	proto.RegisterType((*QueryFeeConfigByChannelAndDenomResponse)(nil), "composable.ibctransfermiddleware.v1beta1.QueryFeeConfigByChannelAndDenomResponse")
 }
 
 func init() {
@@ -122,25 +225,34 @@ func init() {
 }
 
 var fileDescriptor_488b65e78926913a = []byte{
-	// 286 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x32, 0x49, 0xce, 0xcf, 0x2d,
-	0xc8, 0x2f, 0x4e, 0x4c, 0xca, 0x49, 0xd5, 0xcf, 0x4c, 0x4a, 0x2e, 0x29, 0x4a, 0xcc, 0x2b, 0x4e,
-	0x4b, 0x2d, 0xca, 0xcd, 0x4c, 0x49, 0xc9, 0x49, 0x2d, 0x4f, 0x2c, 0x4a, 0xd5, 0x2f, 0x33, 0x4c,
-	0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0x2c, 0x4d, 0x2d, 0xaa, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9,
-	0x17, 0xd2, 0x40, 0xe8, 0xd2, 0xc3, 0xaa, 0x4b, 0x0f, 0xaa, 0x4b, 0x4a, 0x24, 0x3d, 0x3f, 0x3d,
-	0x1f, 0xac, 0x49, 0x1f, 0xc4, 0x82, 0xe8, 0x97, 0x92, 0x49, 0xcf, 0xcf, 0x4f, 0xcf, 0x49, 0xd5,
-	0x4f, 0x2c, 0xc8, 0xd4, 0x4f, 0xcc, 0xcb, 0xcb, 0x2f, 0x49, 0x2c, 0xc9, 0xcc, 0xcf, 0x2b, 0x86,
-	0xca, 0xba, 0x10, 0xed, 0x26, 0xec, 0x76, 0x83, 0x4d, 0x51, 0x12, 0xe1, 0x12, 0x0a, 0x04, 0x39,
-	0x39, 0x20, 0xb1, 0x28, 0x31, 0xb7, 0x38, 0x28, 0xb5, 0xb0, 0x34, 0xb5, 0xb8, 0x44, 0x29, 0x95,
-	0x4b, 0x18, 0x45, 0xb4, 0xb8, 0x20, 0x3f, 0xaf, 0x38, 0x55, 0xc8, 0x8f, 0x8b, 0xad, 0x00, 0x2c,
-	0x22, 0xc1, 0xa8, 0xc0, 0xa8, 0xc1, 0x6d, 0x64, 0xa0, 0x47, 0xac, 0x0f, 0xf5, 0x20, 0x26, 0x39,
-	0xb1, 0x9c, 0xb8, 0x27, 0xcf, 0x10, 0x04, 0x35, 0xc5, 0xe8, 0x20, 0x23, 0x17, 0x2b, 0xd8, 0x1e,
-	0xa1, 0xed, 0x8c, 0x5c, 0x6c, 0x10, 0x25, 0x42, 0x36, 0xc4, 0x1b, 0x8a, 0xe9, 0x72, 0x29, 0x5b,
-	0x32, 0x75, 0x43, 0x7c, 0xa8, 0x64, 0xd0, 0x74, 0xf9, 0xc9, 0x64, 0x26, 0x2d, 0x21, 0x0d, 0x7d,
-	0x82, 0xa1, 0x0b, 0xf1, 0x83, 0x93, 0xf9, 0x89, 0x47, 0x72, 0x8c, 0x17, 0x1e, 0xc9, 0x31, 0x3e,
-	0x78, 0x24, 0xc7, 0x38, 0xe1, 0xb1, 0x1c, 0xc3, 0x85, 0xc7, 0x72, 0x0c, 0x37, 0x1e, 0xcb, 0x31,
-	0x44, 0xc9, 0x56, 0xe0, 0xd0, 0x59, 0x52, 0x59, 0x90, 0x5a, 0x9c, 0xc4, 0x06, 0x8e, 0x00, 0x63,
-	0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x68, 0x06, 0x43, 0xc4, 0x5c, 0x02, 0x00, 0x00,
+	// 422 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0x41, 0x8b, 0xd3, 0x40,
+	0x14, 0xc7, 0x93, 0xda, 0x56, 0x1c, 0x6f, 0x63, 0x0f, 0x25, 0x68, 0x94, 0x1c, 0xb4, 0x78, 0x48,
+	0xda, 0x2a, 0x78, 0xa9, 0x82, 0x6d, 0x11, 0x04, 0x91, 0xb6, 0x27, 0xf1, 0x36, 0x49, 0x5e, 0x62,
+	0x20, 0x99, 0x49, 0x33, 0x53, 0x6b, 0xae, 0x5e, 0xbc, 0x0a, 0x7e, 0x18, 0xbf, 0x42, 0xc1, 0x4b,
+	0xc1, 0xcb, 0x9e, 0x96, 0xa5, 0xdd, 0x0f, 0xb2, 0x74, 0x32, 0x65, 0x59, 0xb6, 0x25, 0xd9, 0x65,
+	0x6f, 0x99, 0x37, 0xf9, 0xff, 0xdf, 0xff, 0x97, 0xf7, 0x82, 0x5e, 0x7b, 0x2c, 0x49, 0x19, 0x27,
+	0x6e, 0x0c, 0x4e, 0xe4, 0x7a, 0x22, 0x23, 0x94, 0x07, 0x90, 0x25, 0x91, 0xef, 0xc7, 0xb0, 0x24,
+	0x19, 0x38, 0xdf, 0x7b, 0x2e, 0x08, 0xd2, 0x73, 0xe6, 0x0b, 0xc8, 0x72, 0x3b, 0xcd, 0x98, 0x60,
+	0xb8, 0x73, 0xa9, 0xb2, 0x0f, 0xaa, 0x6c, 0xa5, 0x32, 0x5a, 0x21, 0x0b, 0x99, 0x14, 0x39, 0xbb,
+	0xa7, 0x42, 0x6f, 0x3c, 0x0e, 0x19, 0x0b, 0x63, 0x70, 0x48, 0x1a, 0x39, 0x84, 0x52, 0x26, 0x88,
+	0x88, 0x18, 0xe5, 0xea, 0x76, 0x5c, 0x39, 0xd3, 0xe1, 0xde, 0xd2, 0xc5, 0x6a, 0x21, 0x3c, 0xdd,
+	0x45, 0x9e, 0x90, 0x8c, 0x24, 0x7c, 0x06, 0xf3, 0x05, 0x70, 0x61, 0x01, 0x7a, 0x74, 0xa5, 0xca,
+	0x53, 0x46, 0x39, 0xe0, 0xcf, 0xa8, 0x99, 0xca, 0x4a, 0x5b, 0x7f, 0xa6, 0x77, 0x1e, 0xf6, 0xbb,
+	0x76, 0x55, 0x42, 0xbb, 0x70, 0x1a, 0xd6, 0x57, 0xa7, 0x4f, 0xb5, 0x99, 0x72, 0xb1, 0xbe, 0xa0,
+	0xe7, 0xb2, 0xcd, 0x07, 0x80, 0x11, 0xa3, 0x41, 0x14, 0x0e, 0xf3, 0xd1, 0x37, 0x42, 0x29, 0xc4,
+	0xef, 0xa9, 0x3f, 0x06, 0xca, 0x12, 0x15, 0x08, 0xb7, 0xd1, 0x7d, 0xaf, 0xb8, 0x91, 0xad, 0x1f,
+	0xcc, 0xf6, 0x47, 0xdc, 0x42, 0x0d, 0x7f, 0xf7, 0x66, 0xbb, 0x26, 0xeb, 0xc5, 0xc1, 0x5a, 0xa2,
+	0x17, 0xa5, 0xce, 0x0a, 0xea, 0x13, 0xaa, 0x07, 0x00, 0x7b, 0xa4, 0x7e, 0x75, 0xa4, 0x11, 0x8b,
+	0xe8, 0x47, 0x01, 0x89, 0x82, 0x92, 0x2e, 0xfd, 0x7f, 0xf7, 0x50, 0x43, 0x76, 0xc6, 0x7f, 0x75,
+	0xd4, 0x2c, 0xa8, 0xf1, 0xa0, 0xba, 0xe9, 0xf5, 0x61, 0x18, 0x6f, 0x6f, 0xa9, 0x2e, 0xf8, 0xac,
+	0xee, 0xcf, 0xff, 0xe7, 0x7f, 0x6a, 0x2f, 0x71, 0xc7, 0x29, 0x5d, 0x98, 0x62, 0x2c, 0xf8, 0x57,
+	0x0d, 0x19, 0xc7, 0x3f, 0x1c, 0x9e, 0xdc, 0x30, 0x4f, 0xe9, 0x74, 0x8d, 0xe9, 0x1d, 0x3a, 0x2a,
+	0xea, 0xb1, 0xa4, 0x7e, 0x87, 0x07, 0xe5, 0xd4, 0x01, 0x80, 0x27, 0xdd, 0xdc, 0x5c, 0x2d, 0x15,
+	0xa1, 0xbe, 0x5c, 0xa3, 0xe1, 0x9b, 0xd5, 0xc6, 0xd4, 0xd7, 0x1b, 0x53, 0x3f, 0xdb, 0x98, 0xfa,
+	0xef, 0xad, 0xa9, 0xad, 0xb7, 0xa6, 0x76, 0xb2, 0x35, 0xb5, 0xaf, 0x4f, 0x7e, 0x1c, 0x71, 0x13,
+	0x79, 0x0a, 0xdc, 0x6d, 0xca, 0xbf, 0xeb, 0xd5, 0x45, 0x00, 0x00, 0x00, 0xff, 0xff, 0x42, 0xd5,
+	0xe2, 0xae, 0x39, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -157,6 +269,7 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Params returns the total set of minting parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	FeeConfigByChannelAndDenom(ctx context.Context, in *QueryFeeConfigByChannelAndDenomRequest, opts ...grpc.CallOption) (*QueryFeeConfigByChannelAndDenomResponse, error)
 }
 
 type queryClient struct {
@@ -176,10 +289,20 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) FeeConfigByChannelAndDenom(ctx context.Context, in *QueryFeeConfigByChannelAndDenomRequest, opts ...grpc.CallOption) (*QueryFeeConfigByChannelAndDenomResponse, error) {
+	out := new(QueryFeeConfigByChannelAndDenomResponse)
+	err := c.cc.Invoke(ctx, "/composable.ibctransfermiddleware.v1beta1.Query/FeeConfigByChannelAndDenom", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Params returns the total set of minting parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	FeeConfigByChannelAndDenom(context.Context, *QueryFeeConfigByChannelAndDenomRequest) (*QueryFeeConfigByChannelAndDenomResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -188,6 +311,9 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
+func (*UnimplementedQueryServer) FeeConfigByChannelAndDenom(ctx context.Context, req *QueryFeeConfigByChannelAndDenomRequest) (*QueryFeeConfigByChannelAndDenomResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeeConfigByChannelAndDenom not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -212,6 +338,24 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_FeeConfigByChannelAndDenom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeeConfigByChannelAndDenomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).FeeConfigByChannelAndDenom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/composable.ibctransfermiddleware.v1beta1.Query/FeeConfigByChannelAndDenom",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).FeeConfigByChannelAndDenom(ctx, req.(*QueryFeeConfigByChannelAndDenomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "composable.ibctransfermiddleware.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -219,6 +363,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
+		},
+		{
+			MethodName: "FeeConfigByChannelAndDenom",
+			Handler:    _Query_FeeConfigByChannelAndDenom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -281,6 +429,76 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryFeeConfigByChannelAndDenomRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryFeeConfigByChannelAndDenomRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryFeeConfigByChannelAndDenomRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Denom)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Channel) > 0 {
+		i -= len(m.Channel)
+		copy(dAtA[i:], m.Channel)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Channel)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryFeeConfigByChannelAndDenomResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryFeeConfigByChannelAndDenomResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryFeeConfigByChannelAndDenomResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Fees.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -308,6 +526,34 @@ func (m *QueryParamsResponse) Size() (n int) {
 	var l int
 	_ = l
 	l = m.Params.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryFeeConfigByChannelAndDenomRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Channel)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.Denom)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryFeeConfigByChannelAndDenomResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Fees.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -427,6 +673,203 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryFeeConfigByChannelAndDenomRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryFeeConfigByChannelAndDenomRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryFeeConfigByChannelAndDenomRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Channel", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Channel = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Denom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryFeeConfigByChannelAndDenomResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryFeeConfigByChannelAndDenomResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryFeeConfigByChannelAndDenomResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Fees", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Fees.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
