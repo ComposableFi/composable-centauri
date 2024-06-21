@@ -70,7 +70,6 @@ import (
 
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 
-	router "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward"
 	routerkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/keeper"
 	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
 
@@ -108,6 +107,7 @@ import (
 	stakingmiddleware "github.com/notional-labs/composable/v6/x/stakingmiddleware/keeper"
 	stakingmiddlewaretypes "github.com/notional-labs/composable/v6/x/stakingmiddleware/types"
 
+	custompfm "github.com/notional-labs/composable/v6/custom/custompfm/keeper"
 	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
 	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
@@ -367,12 +367,15 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.TransferMiddlewareKeeper,
 	)
 
-	ibcMiddlewareStack := router.NewIBCMiddleware(
+	ibcMiddlewareStack := custompfm.NewIBCMiddleware(
+		// ibcMiddlewareStack := router.NewIBCMiddleware(
 		transfermiddlewareStack,
 		appKeepers.RouterKeeper,
 		0,
 		routerkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		routerkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+		&appKeepers.IbcTransferMiddlewareKeeper,
+		&appKeepers.BankKeeper,
 	)
 	ratelimitMiddlewareStack := ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, ibcMiddlewareStack)
 	hooksTransferMiddleware := ibc_hooks.NewIBCMiddleware(ratelimitMiddlewareStack, &appKeepers.HooksICS4Wrapper)

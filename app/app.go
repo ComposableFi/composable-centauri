@@ -338,6 +338,7 @@ func NewComposableApp(
 		enabledProposals,
 	)
 
+	// custompfm.NewIBCMiddleware()
 	// transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferModule := customibctransfer.NewAppModule(appCodec, app.TransferKeeper, app.BankKeeper)
 	routerModule := router.NewAppModule(app.RouterKeeper)
