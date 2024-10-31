@@ -1,5 +1,5 @@
-# Pica
-Cosmos blockchain with IBC-v7 and wasm client enable.
+# Picasso 
+Cosmos L1 blockchain with IBC-v7 and wasm client enabled powering IBC extensions to Solana and Ethereum.
 
 ## Hardware Recommendation
 
